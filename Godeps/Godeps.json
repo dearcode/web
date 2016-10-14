@@ -1,0 +1,48 @@
+{
+	"ImportPath": "github.com/dearcode/web",
+	"GoVersion": "go1.7",
+	"GodepVersion": "v74",
+	"Packages": [
+		"./..."
+	],
+	"Deps": [
+		{
+			"ImportPath": "github.com/davygeek/log",
+			"Rev": "d4d997220708589b22858ade5405e9f17036d22b"
+		},
+		{
+			"ImportPath": "github.com/googollee/go-engine.io",
+			"Rev": "ca9ced27e02c880970ee7726f9814f8a9c55d777"
+		},
+		{
+			"ImportPath": "github.com/googollee/go-engine.io/message",
+			"Rev": "ca9ced27e02c880970ee7726f9814f8a9c55d777"
+		},
+		{
+			"ImportPath": "github.com/googollee/go-engine.io/parser",
+			"Rev": "ca9ced27e02c880970ee7726f9814f8a9c55d777"
+		},
+		{
+			"ImportPath": "github.com/googollee/go-engine.io/polling",
+			"Rev": "ca9ced27e02c880970ee7726f9814f8a9c55d777"
+		},
+		{
+			"ImportPath": "github.com/googollee/go-engine.io/transport",
+			"Rev": "ca9ced27e02c880970ee7726f9814f8a9c55d777"
+		},
+		{
+			"ImportPath": "github.com/googollee/go-engine.io/websocket",
+			"Rev": "ca9ced27e02c880970ee7726f9814f8a9c55d777"
+		},
+		{
+			"ImportPath": "github.com/googollee/go-socket.io",
+			"Comment": "0.9.x-63-ge9f0a9b",
+			"Rev": "e9f0a9b7a61267e1476f9f0a0429337813c39edd"
+		},
+		{
+			"ImportPath": "github.com/gorilla/websocket",
+			"Comment": "v1.0.0-21-g2d1e454",
+			"Rev": "2d1e4548da234d9cb742cc3628556fef86aafbac"
+		}
+	]
+}
