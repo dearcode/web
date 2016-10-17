@@ -2,14 +2,11 @@
 candy web版本
 
 ## 目录结构
-1. web 界面部分
-2. server Server功能实现模块
+1. assert 界面部分资源
+2. server server功能实现
 
-## web系统部署
-1. 安装apache服务器， 把web部署在htdocs目录下。
-2. 设置vhost，可以定义一个域名，例如：candy.dearcode.net
-3. 浏览器访问candy.dearcode.net
-
-## server系统部署
-1. 部署server程序
+## 系统部署
+1. make 编译
+2. ./bin/server
+3. 浏览器访问http://localhost:5000/
 
