@@ -168,6 +168,13 @@ img { max-width: 100%; }
     color: red;
 }
 
+.link a {
+    color: blue;
+	text-align: right;
+    padding-left: 450px;
+    font-size: 20px;
+}
+
 /***** Media queries *****/
 
 @media (min-width: 992px) and (max-width: 1199px) {}

@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="cn">
+  <head>
+      <meta charset="utf-8">
+      <meta http-equiv="X-UA-Compatible" content="IE=edge">
+      <meta name="viewport" content="width=device-width, initial-scale=1">
+      <title>Candy用户注册</title>
+
+      <!-- CSS -->
+      <link rel="stylesheet" href="/lib/bootstrap/css/bootstrap.min.css">
+      <link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+      <link rel="stylesheet" href="/css/form-elements.css">
+      <link rel="stylesheet" href="/css/style.css">
+
+      <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+      <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+      <!--[if lt IE 9]>
+          <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+          <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+      <![endif]-->
+      <!-- Javascript -->
+      <script src="/lib/jquery/jquery-1.11.1.js"></script>
+      <script src="/lib/bootstrap/js/bootstrap.js"></script>
+      <script src="/lib/jquery/jquery.backstretch.js"></script>
+      <script src="/lib/jquery/jquery.cookie.js"></script>
+      <script src="/js/scripts.js"></script>
+      <script src="/js/function.js"></script>
+      <!--[if lt IE 10]>
+          <script src="assets/js/placeholder.js"></script>
+      <![endif]-->
+      <script src="/lib/socketio/socket.io-1.3.7.js"></script>
+  </head>
+  <body>
+      <!-- Top content -->
+      <div class="top-content">
+          <div class="inner-bg">
+              <div class="container">
+                  <div class="row">
+                      <div class="col-sm-6 col-sm-offset-3 form-box">
+                          <div class="form-top">
+                              <div class="form-top-left">
+                                  <h3>用户注册</h3>
+                                  <div id="result" class="result"></div>
+                              </div>
+                          </div>
+                          <div class="form-bottom">
+                              <form role="form" action="" method="post" class="login-form">
+                                  <div class="form-group">
+                                      <label class="sr-only" for="username">用户名</label>
+                                      <input type="text" name="username" placeholder="用户名..." class="form-username form-control" id="username">
+                                  </div>
+                                  <div class="form-group">
+                                      <label class="sr-only" for="password">密码</label>
+                                      <input type="password" name="password" placeholder="密码..." class="form-password form-control" id="password">
+                                  </div>
+                                  <button type="submit" class="btn">注册</button>
+                              </form>
+                          </div>
+                      </div>
+                  </div>
+              </div>
+          </div>
+      </div>
+    <script>
+     $('form').submit(function(){
+         var socket = io();
+         var username = $('#username').val();
+         if (username == "") {
+             $('#result').html("用户名不能为空")
+             return;
+         }
+         var password = $('#password').val();
+         if (password == "") {
+             $('#result').html("密码不能为空")
+             return;
+         }
+
+        socket.emit('init type', "register");
+        socket.emit('register detail', username, password, function(data) {
+            result = checkResult(data);
+            if (result != "成功") {
+                $('#result').html(checkResult(data));
+                return;
+            }
+
+            $('#result').html("注册成功");
+            $.cookie("sessionid", -1, { expires: 7 }); // 存储一个带7天期限的 cookie
+            setTimeout(function() {
+                window.location.href="index.html";
+            }, 3000);
+        });
+
+        return false;
+      });
+    </script>
+  </body>
+</html>
