@@ -1,10 +1,10 @@
 package main
 
 import (
-	"github.com/dearcode/web/server"
+	"github.com/astaxie/beego"
+	_ "github.com/dearcode/web/routers"
 )
 
 func main() {
-	s := server.NewServer()
-	s.Run()
+	beego.Run()
 }
