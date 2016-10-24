@@ -175,6 +175,18 @@ img { max-width: 100%; }
     font-size: 20px;
 }
 
+/*******friend list *************/
+.friendlist {
+    width: 300px;
+    height: 100%;
+    align: left;
+}
+
+.friendlist img {
+    width: 40px;
+    height: 40px;
+}
+
 /***** Media queries *****/
 
 @media (min-width: 992px) and (max-width: 1199px) {}

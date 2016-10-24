@@ -26,7 +26,7 @@ vet:
 server: godep
 	@go tool vet ./ 2>&1
 	@echo "make server"
-	@godep go build -ldflags '$(LDFLAGS)' -o bin/server main.go
+	go build -ldflags '$(LDFLAGS)' -o bin/web main.go
 
 test:
 	@go test ./socket/

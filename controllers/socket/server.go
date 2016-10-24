@@ -1,28 +1,16 @@
 package socket
 
 import (
-	"net/http"
-
-	"github.com/astaxie/beego"
 	"github.com/davygeek/log"
 	candy "github.com/dearcode/candy/client"
 	"github.com/dearcode/candy/meta"
-	"github.com/googollee/go-socket.io"
+	gosocket "github.com/googollee/go-socket.io"
 )
-
-type SocketController struct {
-	beego.Controller
-}
-
-func (c *MainController) Get() {
-	c.Data["Website"] = "beego.me"
-	c.Data["Email"] = "astaxie@gmail.com"
-	c.TplName = "index.tpl"
-}
 
 // Server - socketio server
 type Server struct {
-	Clients map[int64]*candy.CandyClient
+	IOServer *gosocket.Server
+	Clients  map[int64]*candy.CandyClient
 }
 
 type cmdClient struct{}
@@ -54,7 +42,7 @@ func NewServer() *Server {
 
 // Run - run server
 func (s *Server) Run() {
-	server, err := socketio.NewServer(nil)
+	server, err := gosocket.NewServer(nil)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -62,10 +50,10 @@ func (s *Server) Run() {
 	server.On("connection", s.onConnection)
 	server.On("error", s.onError)
 
-	http.Handle("/socket.io/", server)
+	s.IOServer = server
 }
 
-func (s *Server) onConnection(so socketio.Socket) {
+func (s *Server) onConnection(so gosocket.Socket) {
 	log.Info("on connection")
 	so.Join("init")
 
@@ -99,7 +87,7 @@ func (s *Server) onDisConnection() {
 	log.Info("on disconnect")
 }
 
-func (s *Server) onError(so socketio.Socket, err error) {
+func (s *Server) onError(so gosocket.Socket, err error) {
 	log.Infof("error:", err)
 }
 

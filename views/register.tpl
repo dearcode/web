@@ -58,7 +58,7 @@ $('form').submit(function(){
       $('#result').html("注册成功");
       $.cookie("sessionid", -1, { expires: 7 }); // 存储一个带7天期限的 cookie
       setTimeout(function() {
-          window.location.href="index.html";
+          window.location.href="/index";
       }, 3000);
   });
 

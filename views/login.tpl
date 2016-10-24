@@ -62,7 +62,7 @@ $('form').submit(function(){
           return;
       }
 
-      window.location.href="index.html";
+      window.location.href="/index";
   });
 
   return false;

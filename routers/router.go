@@ -8,7 +8,12 @@ import (
 
 func init() {
 	beego.Router("/", &controllers.MainController{})
+	beego.Router("/index", &controllers.MainController{})
 	beego.Router("/login", &controllers.LoginController{})
 	beego.Router("/register", &controllers.RegisterController{})
-	beego.Router("/socket.io/", &socket.SocketController{})
+
+	s := socket.NewServer()
+	s.Run()
+
+	beego.Handler("/socket.io/", s.IOServer)
 }
