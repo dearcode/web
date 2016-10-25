@@ -1,0 +1,85 @@
+.im-pop-face {
+    width: 380px;
+    padding:0;
+    border: 1px solid #e1e1e1;
+    background-color: #FFF;
+    float:none;
+    position:absolute;
+    bottom:40px;
+}
+.im-pop-face .im-table-face {
+    margin: 4px 4px 5px;
+}
+.im-pop-face .im-table-face td {
+    margin: 0;
+    border: 1px solid #E1E1E1;
+    padding: 0;
+    background-color: #FAFAFA;
+}
+.im-table-face .im-face-item-classic,
+.im-table-face .im-face-item-dongdong{
+    display: block;
+    border: 1px solid #FAFAFA;
+    width: 28px;
+    height: 28px;
+    cursor: pointer;
+    background: url(../img/classic.gif) no-repeat 0 0;
+}
+.im-table-face .im-face-item-dongdong {
+    width: 59px;
+    height: 59px;
+    background: url(../img/dongdong.gif) no-repeat 0 0;
+}
+.im-table-face td:hover .im-face-item-classic,
+.im-table-face td:hover .im-face-item-dongdong {
+    border-color: #45ac4a;
+}
+.im-pop-face .im-face-view-classic,
+.im-pop-face .im-face-view-dongdong {
+    position: absolute;
+    z-index: 100;
+    border: 1px solid #45ac4a;
+    padding: 16px;
+    width: 24px;
+    height: 24px;
+    text-align: center;
+    background-color: #fafafa;
+}
+.im-pop-face .im-face-view-dongdong {
+    width: 64px;
+    height: 64px;
+    padding: 9px;
+}
+.im-pop-face .im-face-tab {
+    height: 26px;
+    background: #f0f0f0;
+}
+.im-face-tab a {
+    display: block;
+    float: left;
+    width: 63px;
+    height: 26px;
+    line-height: 26px;
+    text-align: center;
+    color: #000000;
+    text-decoration: none;
+    font-size: 12px;
+    font-family: Verdana,Tohoma,simsun;
+}
+.im-face-tab a:hover {
+    text-decoration: none;
+    background: #f6f6f6;
+}
+.im-face-tab a.current {
+    background: #fff;
+}
+.im-face-tab a.current:hover {
+    background: #fff;
+}
+
+.im-edit-toolbar .im-pop-face {
+    position: absolute;
+    z-index: 100;
+    bottom: 38px;
+    left: 40px;
+}

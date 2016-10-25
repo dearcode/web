@@ -56,6 +56,8 @@ $('form').submit(function(){
   socket.emit('init type', "login");
   socket.emit('login auth', username, password, function(id, data) {
       $.cookie("sessionid", id, { expires: 7 }); // 存储一个带7天期限的 cookie
+      $.cookie("uid", id, { expires: 7});//用户ID
+      $.cookie("aid", username, { expires: 7});//用户名
       result = checkResult(data);
       if (result != "成功") {
           $('#result').html(checkResult(data));

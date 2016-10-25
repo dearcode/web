@@ -1,0 +1,375 @@
+/**
+ * jQuery lightBox plugin
+ * This jQuery plugin was inspired and based on Lightbox 2 by Lokesh Dhakar (http://www.huddletogether.com/projects/lightbox2/)
+ * and adapted to me for use like a plugin from jQuery.
+ * @name jquery-lightbox-0.5.css
+ * @author Leandro Vieira Pinho - http://leandrovieira.com
+ * @version 0.5
+ * @date April 11, 2008
+ * @category jQuery plugin
+ * @copyright (c) 2008 Leandro Vieira Pinho (leandrovieira.com)
+ * @license CCAttribution-ShareAlike 2.5 Brazil - http://creativecommons.org/licenses/by-sa/2.5/br/deed.en_US
+ * @example Visit http://leandrovieira.com/projects/jquery/lightbox/ for more informations about this jQuery plugin
+ */
+#jquery-overlay {
+	position: absolute;
+	top: 0;
+	left: 0;
+	z-index: 90;
+	width: 100%;
+	height: 500px;
+}
+#jquery-lightbox {
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+	z-index: 100;
+	text-align: center;
+	line-height: 0;
+    *z-index:9999;
+}
+#jquery-lightbox a img { border: none; }
+#lightbox-container-image-box {
+	position: relative;
+	/*background-color: #fff;*/
+	width: 250px;
+	height: 250px;
+	margin: 0 auto;
+	overflow: auto;
+}
+#lightbox-container-image { padding: 10px; }
+#lightbox-loading {
+	position: absolute;
+	top: 40%;
+	left: 0%;
+	height: 25%;
+	width: 100%;
+	text-align: center;
+	line-height: 0;
+}
+#lightbox-nav {
+	position: absolute;
+	top: 0;
+	left: 0;
+	height: 100%;
+	width: 100%;
+	z-index: 10;
+}
+#lightbox-container-image-box > #lightbox-nav { left: 0; }
+#lightbox-nav a { outline: none;}
+/*#lightbox-nav-btnPrev, #lightbox-nav-btnNext {*/
+    /*position: absolute;*/
+	/*width: 34px;*/
+	/*height: 34px;*/
+	/*zoom: 1;*/
+	/*display: block;*/
+    /*top: 50%;*/
+/*}*/
+/*#lightbox-nav-btnPrev { */
+	/*left: 0;*/
+	/*float: left;*/
+/*}*/
+/*#lightbox-nav-btnPrev:hover{*/
+    /*background-position: -126px -116px;*/
+/*}*/
+
+/*#lightbox-nav-btnNext { */
+	/*right: 0; */
+	/*float: right;*/
+/*}*/
+/*#lightbox-nav-btnNext:hover{*/
+    /*background-position: -40px -116px ;*/
+/*}*/
+#lightbox-container-image-data-box {
+	font: 10px Verdana, Helvetica, sans-serif;
+	background-color: #fff;
+	margin: 0 auto;
+	line-height: 1.4em;
+	overflow: auto;
+	width: 100%;
+	padding: 0 10px 0;
+}
+#lightbox-container-image-data {
+	padding: 0 10px;
+	color: #666;
+}
+#lightbox-container-image-data #lightbox-image-details {
+	width: 70%;
+	float: left;
+	text-align: left;
+}
+#lightbox-image-details-caption { font-weight: bold; }
+#lightbox-image-details-currentNumber {
+	display: block;
+	clear: left;
+	padding-bottom: 1.0em;
+}
+/*#lightbox-secNav-btnClose {*/
+	/*width: 66px; */
+	/*float: right;*/
+	/*padding-bottom: 0.7em;	*/
+/*}*/
+#jquery-lightbox .im-pop-close {
+    background-position: -222px -157px;
+}
+#jquery-lightbox .im-pop-close:hover {
+    background-position: -256px -157px;
+}
+
+.im-pop-view-pic {
+	/*position: absolute;*/
+	z-index: 99;
+	border: 1px solid #FFF;
+	_zoom: 1;
+	box-shadow: 0 0 3px #000;
+
+    filter:progid:DXImageTransform.Microsoft.gradient(startColorStr='#33000000',EndColorStr='#33000000');
+}
+#jquery-lightbox .im-pop-close {
+	position: absolute;
+	top: 2px;
+	right: 0px;
+	width: 28px;
+	height: 28px;
+    z-index: 1000;
+}
+.im-pop-view-pic .im-pop-content {
+	height: 100%;
+	overflow: hidden;
+	background-color: rgba(0, 0, 0, 0.2);
+	filter:progid:DXImageTransform.Microsoft.gradient(startColorStr='#33000000',EndColorStr='#33000000');
+}
+.im-pop-view-pic .im-pic-slide {
+	position: relative;
+	top: 50%;
+	left: 50%;
+	margin-top: -165px;
+	margin-left: -310px;
+	width: 620px;
+	height: 330px;
+}
+.im-pic-slide .im-slide-area {
+	margin: 0 60px;
+	width: 500px;
+	height: 330px;
+	overflow: hidden;
+}
+.im-pic-slide .im-item {
+	float: left;
+	width: 500px;
+}
+.im-pic-slide .im-item img {
+	display: block;
+	margin: auto;
+	max-width: 500px;
+	_width: 500px;
+	max-height: 330px;
+	_height: 330px;
+}
+.im-pop-view-pic .im-slide-prev,
+.im-pop-view-pic .im-slide-next {
+	position: absolute;
+	top: 50%;
+	width: 34px;
+	height: 34px;
+}
+.im-pop-view-pic .im-slide-prev {
+	left: 30px;
+}
+.im-pop-view-pic .im-slide-next {
+	right: 30px;
+}
+
+
+.im-icon-start,
+.im-icon-prev-arrow,
+.im-icon-next-arrow,
+.im-icon-close,
+.progressCancel,
+.im-icon-arrow,
+.im-icon-more,
+.im-pop-close,
+.im-icon-slide-prev,
+.im-icon-slide-next,
+.im-box-arrow,
+.go-origin-pic,
+.thub-close,
+.back-thumbnail,
+.pic-trigger,
+.pic-zoom,
+.im-msg-arrow {
+	display: inline-block;
+	*display: inline;
+	*zoom: 1;
+	width: 75px;
+	height: 14px;
+	background: url(../../img/20130710A.png) no-repeat;
+	vertical-align: text-bottom;
+}
+.im-icon-start-5 {
+	background-position: -33px -65px;
+}
+.im-icon-start-4 {
+	background-position:-48px -65px;
+}
+.im-icon-start-3 {
+	background-position:-63px -65px;
+}
+.im-icon-start-2 {
+	background-position:-78px -65px;
+}
+.im-icon-start-1 {
+	background-position:-63px -65px;
+}
+.im-icon-start-0 {
+	background-position:-108px -65px;
+}
+.im-icon-next-arrow {
+	width: 14px;
+	height: 30px;
+	background-position:-56px -31px;
+}
+.im-icon-next-arrow:hover {
+	width: 14px;
+	height: 30px;
+	background-position:-136px -31px;
+}
+.im-icon-prev-arrow {
+	width: 14px;
+	height: 30px;
+	background-position:-56px 0;
+}
+.im-icon-prev-arrow:hover {
+	width: 14px;
+	height: 30px;
+	background-position:-136px 0;
+}
+.im-icon-close,
+.progressCancel {
+	width: 22px;
+	height: 22px;
+	background-position:-81px 8px;
+}
+.im-icon-close:hover,
+.progressCancel:hover {
+	/*width: 14px;
+	height: 14px;*/
+	background-position:-81px -27px;
+}
+.im-pop-choose-order .im-icon-close,
+.im-pop-alert .im-icon-close {
+	position: absolute;
+	width: 22px;
+	height: 22px;
+	background-position:-188px -84px;
+}
+.im-pop-choose-order .im-icon-close:hover,
+.im-pop-alert .im-icon-close:hover {
+	background-position:-188px -114px;
+}
+.im-icon-more {
+	width: 12px;
+	background-position:-32px -93px;
+}
+.im-icon-more:hover {
+	width: 12px;
+	background-position:-55px -93px;
+}
+#jquery-lightbox .im-pop-close {
+    background-position: -222px -157px;
+}
+#jquery-lightbox .im-pop-close:hover {
+    background-position: -256px -157px;
+}
+.im-icon-slide-prev {
+	background-position: -85px -116px;
+}
+.im-icon-slide-prev:hover {
+	background-position: -127px -116px;
+}
+.im-icon-slide-next {
+	background-position: 0 -116px;
+}
+.im-icon-slide-next:hover {
+	background-position: -41px -116px;
+}
+.im-box-arrow {
+	width: 16px;
+	height: 10px;
+	background-position: -192px -62px;
+}
+.im-pop-view-pic {
+    position: absolute;
+    z-index: 99;
+    border: 1px solid #FFF;
+    _zoom: 1;
+    box-shadow: 0 0 3px #000;
+}
+.im-pop-view-pic .im-pop-close {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 28px;
+    height: 28px;
+}
+.im-pop-view-pic .im-pop-content {
+    height: 100%;
+    overflow: hidden;
+    background-color: rgba(0, 0, 0, 0.3);
+    filter:progid:DXImageTransform.Microsoft.gradient(startColorStr='#33000000',EndColorStr='#33000000');
+}
+.im-pop-view-pic .im-pic-slide {
+    position: relative;
+    top: 50%;
+    left: 50%;
+    margin-top: -165px;
+    margin-left: -310px;
+    width: 620px;
+    height: 330px;
+}
+.im-pic-slide .im-slide-area {
+    margin: 0 60px;
+    width: 500px;
+    height: 330px;
+    overflow: hidden;
+}
+.im-pic-slide .im-item {
+    float: left;
+    width: 500px;
+}
+.im-pic-slide .im-item img {
+    display: block;
+    margin: auto;
+    max-width: 500px;
+    _width: 500px;
+    max-height: 330px;
+    _height: 330px;
+}
+.im-pic-slide .im-slide-prev,
+.im-pic-slide .im-slide-next {
+    position: absolute;
+    top: 150px;
+    width: 34px;
+    height: 34px;
+}
+.im-pic-slide .im-slide-prev {
+    left: -60px;
+}
+.im-pic-slide .im-slide-next {
+    right: -60px;
+}
+
+.im-pic-thumbnail{position:absolute;bottom:5px;right:5px;}
+.im-pic-thumbnail .thumbnail{border:1px solid #CDC9C4;box-shadow:0 0 3px #000;z-index:100;}
+.im-pic-thumbnail .curarea{position:absolute;right:20px;bottom:15px;width:43px;height:28px;border:1px solid #CDC9C4;}
+.thub-close{position:absolute;top:0;right:0;width:19px;height:19px;background-position:-225px -198px;}
+.thub-close:hover{background-position:-249px -198px;}
+.pic-trigger{position:absolute;top:0;left:50%;width:106px;height:42px;margin-left:-53px;background-position:0 -244px;
+    z-index: 100;}
+.go-origin-pic,.pic-zoom,.back-thumbnail{width:26px;height:26px;position:absolute;top:10px;}
+.go-origin-pic{left:20px;background-position:-285px -233px;}
+.pic-zoom{right:20px;background-position:-254px -232px;}
+.back-thumbnail{right:20px;background-position:-224px -232px;}
+.go-origin-pic:hover{background-position:-285px -259px;}
+.pic-zoom:hover{background-position:-254px -259px;}

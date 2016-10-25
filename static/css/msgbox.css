@@ -1,0 +1,135 @@
+@charset "UTF-8";
+.msgbox-mask{
+    background-color: rgba(0,0,0,0.3);
+    position:absolute;
+    top:0;
+    left:0;
+    right:0;
+    bottom: 0;
+    z-index:1000;
+    filter:progid:DXImageTransform.Microsoft.gradient(startColorStr='#33000000', EndColorStr='#4C000000');
+}
+.msgbox-main{
+    position:absolute;
+    z-index:10000;
+    background:#fff;
+    width:410px;
+    left:35%;
+    top:15%;
+    -webkit-border-radius: 5px;
+    -moz-border-radius: 5px;
+    border-radius: 5px;
+    -webkit-box-shadow: 0 0 18px rgba(0, 0, 0, 0.4);
+    -moz-box-shadow: 0 0 18px rgba(0, 0, 0, 0.4);
+    box-shadow: 0 0 18px rgba(0, 0, 0, 0.4);
+}
+.msgbox-title{
+    background: #E1E6EA;
+    height: 40px;
+    line-height: 40px;
+    color: #333;
+    font-size: 14px;
+    font-weight: bold;
+    border-bottom: 3px solid #A7B3C3;
+    text-indent: 10px;
+    border-radius: 5px 5px 0 0;
+}
+.msgbox-close{
+    width: 22px;
+    height: 22px;
+    background: url(../img/close-btn.png) no-repeat 0 0;
+	cursor: pointer;
+	float:right;
+    margin:8px 10px 0 0;
+}
+.msgbox-close:hover{
+	color:white;
+}
+.msgbox-bottom{
+    text-align: center;
+    margin-bottom: 10px;
+}
+.msgbox-btn{
+    display: inline-block;
+    *display: inline;
+    *zoom:1;
+    width: 120px;
+    height: 36px;
+    line-height: 36px;
+    color: #FFF;
+    background: #3897E7;
+    border-radius: 5px;
+    box-shadow: 0 2px #2B75B3;
+    text-align: center;
+    font-size: 14px;
+}
+
+.msgbox-btn-gray {
+    display: inline-block;
+    *display: inline;
+    *zoom:1;
+    width: 120px;
+    height: 36px;
+    line-height: 36px;
+    color: #FFF;
+    border-radius: 5px;
+    text-align: center;
+    font-size: 14px;
+    background: #d4d9df;
+    box-shadow: 0 2px #aeb6c0;
+}
+
+.msgbox-btn:hover{
+	color:white;
+}
+.msgbox-content{
+	text-align: center;
+	line-height:30px;
+	font-size:14px;
+	padding:15px;
+    color: #8693A4;
+    word-wrap: break-word;
+}
+#msgbox-confirm-ok{
+	left:35%;
+}
+#msgbox-confirm-cancel{
+	left:50%;
+}
+
+/**progress**/
+
+.ui-progress , .ui-progress-current {
+	width:240px;
+	height:5px;
+	border:1px solid gray;
+	display:inline-block;
+	border-radius:5px;
+
+}
+.ui-progress-current{
+
+	background:green;
+	width:20px;
+	float:left;
+}
+
+
+.ui-progress-cancel{
+	display:inline-block;
+	cursor:pointer;
+	margin-left:5px;
+	font-size:12px;
+}
+.ui-progress-cancel:hover{
+	color:red;
+}
+.ui-progress-clear{
+	clear:left;
+	display:inline-block;
+}
+.ui-progress-text{
+	position:absolute;
+	font-size:12px;
+	padding-top:2px;
+}

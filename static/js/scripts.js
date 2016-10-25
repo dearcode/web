@@ -1,9 +1,5 @@
 
 jQuery(document).ready(function() {
-    /*
-        Fullscreen background
-    */
-    $.backstretch("/static/img/backgrounds/1.jpg");
 
     /*
         Form validation
