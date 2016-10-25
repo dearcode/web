@@ -1,3 +1,13 @@
+function checkCode(data) {
+    var obj = eval('(' + data + ')');
+    return obj.Code;
+}
+
+function checkData(data) {
+    var obj = eval('(' + data + ')');
+    return obj.Data;
+}
+
 function checkResult(data) {
     var obj = eval('(' + data + ')');
     var result = "";
@@ -91,6 +101,9 @@ function checkResult(data) {
             break;
         case 1051:
             result = "加载消息列表失败";
+            break;
+        case 5000:
+            result = "用户尚未认证";
             break;
         default:
             result = "未知错误";

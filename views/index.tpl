@@ -133,15 +133,13 @@
     <li id="team-temp" class="team-chatwin"><span class="i"></span></li>
 </ul>
 <div class="title">
-
 </div>
                 </div>
                 <div class="bd">
                     <div class="msg-wrap">
 
 </div>
-<!--
-<div class="cls-msg">清屏</div>-->
+
                 </div>
                 <div class="bar-wrap">
                     <div class="cls-msg ui-hide" id="clearmonitor">清屏</div>

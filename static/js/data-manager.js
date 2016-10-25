@@ -317,9 +317,8 @@ var get_self_info = function(suc, error) {
 	var defaults = {
 		"aid" : cookie("aid"),
 		"uid" : cookie("uid"),
-		"ptype" : "iep_erp_get",
-		"pname" : cookie("uid"),
-		"url" : "/api"
+		"ptype" : "getSelfInfo",
+		"pname" : cookie("uid")
 	};
 	data_ajax(suc, error, defaults, 1);
 }

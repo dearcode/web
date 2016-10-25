@@ -5,10 +5,12 @@
 	// 个人信息
 	get_self_info(function(data) {
 				require(["util"], function(util) {
-							if (data.code && data.code == 110) {
+							if (data.Code && data.Code != 0) {
+								alert(data.Msg);
 								util.cookie("aid", "");
-                                $("body").addClass("sendingMail");
-								location.href = "/passport/login.action";
+								util.cookie("uid", "");
+								util.cookie("sessionid", "");
+                                location.href = "/login";
 							}
 							var userinfo = data.body, userele = $("#panel-user-info");
 							if (!userinfo) {

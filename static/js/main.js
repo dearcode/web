@@ -11,6 +11,18 @@ require.config({
 	waitSeconds:15
 });
 
+//初始化全局socket
+/*var socket = io();
+var COOKIE_NAME = 'sessionid';
+socket.emit('main session', $.cookie(COOKIE_NAME), function(data) {
+	result = checkResult(data);
+	if (result != "成功") {
+		window.location.href="/login";
+		return;
+	}
+	alert(data);
+});
+*/
 var contactStatusWorker = setInterval(function() {
 	if(offline){
 		clearInterval(contactStatusWorker);

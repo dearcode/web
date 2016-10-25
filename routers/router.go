@@ -13,7 +13,6 @@ func init() {
 	beego.Router("/register", &controllers.RegisterController{})
 
 	s := socket.NewServer()
-	s.Run()
-
 	beego.Handler("/socket.io/", s.IOServer)
+	beego.Router("/api.action", s)
 }

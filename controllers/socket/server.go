@@ -1,6 +1,10 @@
 package socket
 
 import (
+	"fmt"
+	"sync"
+
+	"github.com/astaxie/beego"
 	"github.com/davygeek/log"
 	candy "github.com/dearcode/candy/client"
 	"github.com/dearcode/candy/meta"
@@ -9,6 +13,8 @@ import (
 
 // Server - socketio server
 type Server struct {
+	sync.Mutex
+	beego.Controller
 	IOServer *gosocket.Server
 	Clients  map[int64]*candy.CandyClient
 }
@@ -37,11 +43,8 @@ func (c *cmdClient) OnUnHealth(msg string) {
 }
 
 func NewServer() *Server {
-	return &Server{Clients: make(map[int64]*candy.CandyClient)}
-}
+	s := &Server{Clients: make(map[int64]*candy.CandyClient)}
 
-// Run - run server
-func (s *Server) Run() {
 	server, err := gosocket.NewServer(nil)
 	if err != nil {
 		log.Fatal(err)
@@ -51,6 +54,7 @@ func (s *Server) Run() {
 	server.On("error", s.onError)
 
 	s.IOServer = server
+	return s
 }
 
 func (s *Server) onConnection(so gosocket.Socket) {
@@ -92,17 +96,34 @@ func (s *Server) onError(so gosocket.Socket, err error) {
 }
 
 func (s *Server) addClient(id int64, c *candy.CandyClient) {
+	s.Lock()
+	defer s.Unlock()
 	if client, ok := s.Clients[id]; ok {
 		client.Stop()
+		delete(s.Clients, id)
 	}
 
 	s.Clients[id] = c
+	log.Debugf("Clients:%v Server:%v", s.Clients, &s)
 }
 
 func (s *Server) removeClient(id int64) {
+	s.Lock()
+	defer s.Unlock()
 	if client, ok := s.Clients[id]; ok {
 		client.Stop()
 	}
-
 	delete(s.Clients, id)
+}
+
+func (s *Server) getClient(id int64) (*candy.CandyClient, error) {
+	s.Lock()
+	defer s.Unlock()
+	client, ok := s.Clients[id]
+	if ok {
+		return client, nil
+	}
+
+	log.Debugf("Clients:%v Server:%v", s.Clients, &s)
+	return nil, fmt.Errorf("%v not exist", id)
 }
