@@ -386,7 +386,7 @@ var get_contact_list_re = function() {
 				for (var i in users) {
 					var user = users[i];
 					var str = ' <li class="item" conver="' + user.user.uid + '" id="contact-' + user.user.uid
-							+ '" kind="customer">' + '<div class="l">' + '<img src="./img/img-avatar.png" alt=""/>'
+							+ '" kind="customer">' + '<div class="l">' + '<img src="../img/img-avatar.png" alt=""/>'
 							+ '</div>' + '<div class="m">' + '<div class="nickname"><span>' + user.user.uid
 							+ '</span><i class="offline-text"></i><span class=""></span></div>'
 							+ '<div class="rc-msg wto"></div>' + '</div><div class="r">'

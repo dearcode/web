@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"github.com/astaxie/beego"
+	"github.com/davygeek/log"
 )
 
 type LoginController struct {
@@ -10,4 +11,5 @@ type LoginController struct {
 
 func (c *LoginController) Get() {
 	c.TplName = "login.tpl"
+	log.Debugf("LoginController:%v", &c)
 }

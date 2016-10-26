@@ -39,7 +39,7 @@ func (s *Server) handleError(data string) {
 }
 
 func (s *Server) getSelfInfo(uid int64) {
-	c, err := s.getClient(uid)
+	c, err := getClient(uid)
 	if err != nil {
 		log.Errorf("%v", err)
 		s.handleOK(util.Error(util.ErrSessionTimeout, "session timeout"))
@@ -52,6 +52,7 @@ func (s *Server) getSelfInfo(uid int64) {
 		s.handleOK(util.Error(util.ErrGetUserInfoByID, "getSelfInfo by id error"))
 		return
 	}
+	log.Debugf("data:%v", data)
 
 	s.handleOK(data)
 }

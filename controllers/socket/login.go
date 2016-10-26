@@ -27,7 +27,7 @@ func (s *Server) onLogin(so socketio.Socket) {
 			return e.Error()
 		}
 
-		s.addClient(id, c)
+		addClient(id, c)
 
 		return candy.NewData(0, "login success", fmt.Sprintf("%v", id)).Error()
 	})

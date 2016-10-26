@@ -11,12 +11,13 @@ import (
 	gosocket "github.com/googollee/go-socket.io"
 )
 
+var Clients map[int64]*candy.CandyClient = make(map[int64]*candy.CandyClient)
+var l sync.Mutex
+
 // Server - socketio server
 type Server struct {
-	sync.Mutex
 	beego.Controller
 	IOServer *gosocket.Server
-	Clients  map[int64]*candy.CandyClient
 }
 
 type cmdClient struct{}
@@ -43,7 +44,7 @@ func (c *cmdClient) OnUnHealth(msg string) {
 }
 
 func NewServer() *Server {
-	s := &Server{Clients: make(map[int64]*candy.CandyClient)}
+	s := &Server{}
 
 	server, err := gosocket.NewServer(nil)
 	if err != nil {
@@ -95,35 +96,35 @@ func (s *Server) onError(so gosocket.Socket, err error) {
 	log.Infof("error:", err)
 }
 
-func (s *Server) addClient(id int64, c *candy.CandyClient) {
-	s.Lock()
-	defer s.Unlock()
-	if client, ok := s.Clients[id]; ok {
+func addClient(id int64, c *candy.CandyClient) {
+	l.Lock()
+	defer l.Unlock()
+	if client, ok := Clients[id]; ok {
 		client.Stop()
-		delete(s.Clients, id)
+		delete(Clients, id)
 	}
 
-	s.Clients[id] = c
-	log.Debugf("Clients:%v Server:%v", s.Clients, &s)
+	Clients[id] = c
+	log.Debugf("Clients:%v", Clients)
 }
 
-func (s *Server) removeClient(id int64) {
-	s.Lock()
-	defer s.Unlock()
-	if client, ok := s.Clients[id]; ok {
+func removeClient(id int64) {
+	l.Lock()
+	defer l.Unlock()
+	if client, ok := Clients[id]; ok {
 		client.Stop()
 	}
-	delete(s.Clients, id)
+	delete(Clients, id)
 }
 
-func (s *Server) getClient(id int64) (*candy.CandyClient, error) {
-	s.Lock()
-	defer s.Unlock()
-	client, ok := s.Clients[id]
+func getClient(id int64) (*candy.CandyClient, error) {
+	l.Lock()
+	defer l.Unlock()
+	client, ok := Clients[id]
 	if ok {
 		return client, nil
 	}
 
-	log.Debugf("Clients:%v Server:%v", s.Clients, &s)
+	log.Debugf("Clients:%v", Clients)
 	return nil, fmt.Errorf("%v not exist", id)
 }

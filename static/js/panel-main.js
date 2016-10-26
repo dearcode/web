@@ -12,26 +12,19 @@
 								util.cookie("sessionid", "");
                                 location.href = "/login";
 							}
-							var userinfo = data.body, userele = $("#panel-user-info");
-							if (!userinfo) {
-								userinfo = JSON.parse(util.cookie("userinfo"));
-								if (!userinfo) {
-									return;
+							var userele = $("#panel-user-info");
+							userele.find(".user-nick strong").text(data.NickName);
+							if (!!data.Signature) {
+								if(data.Signature == undefined || data.Signature == "") {
+									$("#panel-user-signature").text("这家伙很懒，什么都没有留下");
+								} else {
+									$("#panel-user-signature").text(data.Signature);
 								}
-							} else {
-								util.cookie("userinfo", JSON.stringify(userinfo), {
-											expires : 30,
-											path : "/"
-										});
-							}
-							userele.find(".user-nick strong").text(userinfo.realname);
-							if (!!userinfo.signature) {
-								$("#panel-user-signature").text(userinfo.signature);
 							} else {
 								$("#panel-user-signature").text("编辑个性签名！");
 							}
-							DDstorage.set(userinfo.uid, userinfo);
-							util.cookie("avatar", userinfo.avatar, {
+							DDstorage.set(data.ID, data);
+							util.cookie("avatar", data.Avatar, {
 										expires : 30,
 										path : "/"
 									});
@@ -198,11 +191,7 @@
       url : '/api.action?' + $.param(defaults),
       success:doSearchResult
     });
-//		search_user_list(that.value, function(data) {
-//
-//				}, function(data) {
-////					console.log(data)
-//				});
+
     if ($("#jd-contact").find(".mod").length == 0) {
       // 当前联系人为空，搜索后请求联系人列表
       get_contact_list_re();
