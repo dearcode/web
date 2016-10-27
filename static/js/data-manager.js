@@ -1,5 +1,5 @@
 /**
- * created by cdwangrui@jd.com
+ *
  */
 
 var get_status_class = function(status) {
@@ -564,7 +564,7 @@ var message_read_receipt_other = function(mid, suc, error) {
 	var defaults = {
 		"aid" : cookie("aid"),
 		"from" : cookie("uid"),
-		"to" : "@im.jd.com",
+		"to" : "@im.dearcode.net",
 		"type" : "message_read_receipt",
 		"version" : "1.0",
 		"body" : {

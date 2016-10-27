@@ -1,5 +1,5 @@
 /**
- * created by cdwangrui@jd.com
+ *
  */
 
 // 单个联系人菜单

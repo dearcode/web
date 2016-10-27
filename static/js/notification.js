@@ -9,9 +9,9 @@ define(function(require, exports, module){
 	    util = require("util"),
 	    ntimer = null,
 	    support = window.webkitNotifications;
-	
-	
-	
+
+
+
 	function notify(icon,title, content, events, key){
 		if(util.cookie("isOpenDesk") == "0"){
 			return;
@@ -22,28 +22,26 @@ define(function(require, exports, module){
 				if(!content){
 					return;
 				}
-				
+
 				if(ntimer){
 					clearTimeout(ntimer);
 				}
-				var notice = support.createNotification(icon ||"./img/img-avatar.png", title, content);
+				var notice = support.createNotification(icon ||"../img/img-avatar.png", title, content);
 
 				if(key){
 					notice.replaceId = key;
 				}else{
-					notice.replaceId = "edd.jd.com";
+					notice.replaceId = "edd.dearcode.net";
 				}
 				notice.onshow = function(){
 					if(events.onshow){
 						events.onshow(notice);
 					}
-//					show = true;
 				};
 				notice.onclose = function(){
 					if(events.onclose){
 						events.onclose();
 					}
-//					show = false;
 				};
 				notice.onclick = function(){
 					if(events.onclick){
@@ -73,7 +71,7 @@ define(function(require, exports, module){
 				if(ntimer){
 					clearTimeout(ntimer);
 				}
-				var notice = new Notification(title, {body:content,icon:icon||"./img/img-avatar.png", tag:key ||"ee.jd.com"});
+				var notice = new Notification(title, {body:content,icon:icon||"./img/img-avatar.png", tag:key ||"ee.dearcode.net"});
 				if(events){
 					notice.onshow = onshow;
 					notice.onshow = events.onshow;
@@ -100,19 +98,8 @@ define(function(require, exports, module){
                 return notice;
 			}
 		}
-		//支持改功能，但是用户还未授权
-		// 0 授权   1未授权未拒绝  2拒绝
-		/*if(support && support.checkPermission() != 2){
-			setTimeout(function(){
-				create(title, content, events);
-			}, 3000);
-		}else{
-			create(title, content, events);
-		}*/
-		
-		
 	}
-	
+
 	function create(title, content, events){
 		if(!content){
 			return;
@@ -151,14 +138,14 @@ define(function(require, exports, module){
 			}
 		}, 500);
 	}
-	
+
 	function build(title, content){
 		var html = "<div id='web-notice' class='web-notice'>"+
 		"<h4 id='web-notice-title' class='web-notice-title'>"+title+"<span id='web-notice-close' class='web-notice-close'>\u00d7</span></h4>";
 		html += "<div id='web-notice-content' class='web-notice-content'>"+content+"</div></div>";
 		return html;
 	}
-	
+
 	function urlNotify(url, events){
 		var notice = null;
 		if(!url){
@@ -189,9 +176,8 @@ define(function(require, exports, module){
 				support.requestPermission(urlNotify);
 			}
 		}
-		
 	}
-	
+
 	function createIframe(url, events){
 		var html = "<div id='web-notice-url' class='web-notice'><h4 id='web-notice-url-title' class='web-notice-title'><span id='web-notice-url-close' class='web-notice-close'>\u00d7</span></h4><div id='web-notice-url-content'><iframe src='"+url+"' class='web-notice-iframe'></iframe></div></div>";
 		if($("#web-notice-url").length > 0){
@@ -215,8 +201,8 @@ define(function(require, exports, module){
 			return false;
 		});
 	}
-	
-	
+
+
 	function flashTitle(){
 		if(timer){
 			clearInterval(timer);
@@ -242,7 +228,7 @@ define(function(require, exports, module){
             }
 		});
 	}
-	
+
 	function requestPermission(callback){
 		if(support){
 			if(support.checkPermission() != 0){
@@ -256,7 +242,7 @@ define(function(require, exports, module){
 		    }
 		}
 	}
-	
+
 	function events(){
 		$("#user_dest_set").click(function(){
 			requestPermission();
@@ -294,7 +280,7 @@ define(function(require, exports, module){
     }
     return msg;
   }
-	
+
 	function noticeMsg(icon,from, title, msg){
         var notice;
 		if(windowstatus == "blur"){
@@ -314,7 +300,7 @@ define(function(require, exports, module){
             return notice;
 		}
 	}
-	
+
 	function hasPermission(){
 		if(support){
 			return support.checkPermission() == 0;
@@ -323,7 +309,7 @@ define(function(require, exports, module){
 		}
 		return false;
 	}
-	
+
 	function isSupported(){
 		return support || window.Notification;
 	}
@@ -331,9 +317,8 @@ define(function(require, exports, module){
     function getWinStatus(){
         return windowstatus;
     }
-	
+
 	function systemMsg(msg){
-//		DDstorage.set("system_msg_"+msg.body.mid, msg);
 		var content = msg.body.content;
 		if(content.length > 80){
 			content = content.substring(0, 80)+"...";
@@ -346,17 +331,17 @@ define(function(require, exports, module){
 				}else{
 					content = "<div style='text-align:left;'>"+msg.body.content+"</div>";
 				}
-				
+
 				window.focus();
 				util.alert(title, content);
 			});
 		}
 	}
-	
+
 	function notice(icon, title, content, mid,  onclick){
 		var notice;
 		if(window.webkitNotifications){
-			notice = window.webkitNotifications.createNotification(icon ||"./img/img-avatar.png", title, content);
+			notice = window.webkitNotifications.createNotification(icon ||"../img/img-avatar.png", title, content);
 			notice.onclick = function(){
 				onclick(mid);
 				notice.cancel();
@@ -364,14 +349,14 @@ define(function(require, exports, module){
 			notice.replaceId = mid;
 			notice.show();
 		}else if(window.Notification){
-			notice = new Notification(title, {body:content,icon:icon||"./img/img-avatar.png", tag:mid ||"ee.jd.com"});
+			notice = new Notification(title, {body:content,icon:icon||"../img/img-avatar.png", tag:mid ||"ee.dearcode.net"});
 			notice.onclick = function(){
 				onclick(mid);
 				notice.close();
 			};
 		}
 	}
-	
+
 	events();
 	return {
 		notify:notify,

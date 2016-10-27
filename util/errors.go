@@ -18,4 +18,6 @@ const (
 	ErrFrom = 5004
 	// ErrTo
 	ErrTo = 5005
+	// ErrType
+	ErrType = 5006
 )

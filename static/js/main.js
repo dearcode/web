@@ -880,7 +880,7 @@ require(["chat", "util", "chat_window", "share", "upload"], function(chat, util,
 									}
                                     $("a[download]").unbind("click").bind("click", function(){
                                         var href = $(this).attr("href"), download = $(this).attr("download");
-                                        if(href.indexOf("http://storage.jd.com") == 0 || href.indexOf("http://s.timline.jd.com") == 0) {
+                                        if(href.indexOf("http://storage.dearcode.net") == 0 || href.indexOf("http://candy.dearcode.net") == 0) {
                                             download = encodeURI(encodeURI(download));
                                             href = "/file/download?url="+encodeURIComponent(href)+"&fileName="+download;
                                             $(this).attr("href",href)

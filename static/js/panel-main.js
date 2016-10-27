@@ -1,5 +1,5 @@
-/**
- * created by cdwangrui@jd.com
+/*
+ *
  */
 (function() {
 	// 个人信息
@@ -23,7 +23,8 @@
 							} else {
 								$("#panel-user-signature").text("编辑个性签名！");
 							}
-							DDstorage.set(data.ID, data);
+							uid = util.cookie("uid"),
+							DDstorage.set(uid, data);
 							util.cookie("avatar", data.Avatar, {
 										expires : 30,
 										path : "/"
@@ -85,6 +86,7 @@
                 });
     });
 
+	// 搜索结果
 	$("#panel-search-re").on("click", ".rc-item", function(e) {
 				var is_selected = $(this).hasClass("selected");
 				if (!is_selected) {
@@ -242,7 +244,7 @@
 			str += '<ul class="rc-wrap">'
 			+'<li class="rc-item" id="search-re-'+groups[i].gid+'" conver="'+groups[i].gid+'" kind="'+groups[i].kind+'"> '
 			+'  <div class="l">'
-			+'      <img src="./img/team-avatar.png" >'
+			+'      <img src="../img/team-avatar.png" >'
 			+'  </div> '
 			+'      <div class="m">'
 			+'          <div class="nickname">'

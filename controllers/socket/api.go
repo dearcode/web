@@ -30,6 +30,8 @@ func (s *Server) Post() {
 		s.getRecentContact(aid, uid)
 	case "batchContactStatus":
 		s.batchContactStatus(aid, uid)
+	case "setSignature":
+		s.setSignature(aid, uid)
 	default:
 		log.Errorf("unknow type:%v", ptype)
 	}
@@ -79,6 +81,8 @@ func (s *Server) getContactStatus(aid string, uid int64) {
 	}
 
 	log.Debugf("from:%v to:%v", from, to)
+
+	s.handleOK("{\"Status\":\"busy\"}")
 }
 
 // getRecentContact 查询最近联系人列表
@@ -90,5 +94,11 @@ func (s *Server) getRecentContact(aid string, uid int64) {
 func (s *Server) batchContactStatus(aid string, uid int64) {
 	pnames := s.GetString("pnames")
 	log.Debugf("pnames:%v", pnames)
+}
 
+// setSignature 设置签名
+func (s *Server) setSignature(aid string, uid int64) {
+	signature := s.GetString("signature")
+	log.Debugf("signature:%v", signature)
+	s.handleOK("{\"Code\":0}")
 }

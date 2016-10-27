@@ -1,5 +1,5 @@
 /**
- * @author yfwuhuan
+ *
  */
 define("chat",["util"],function(util){
 	var chatAjax={
@@ -28,7 +28,7 @@ define("chat",["util"],function(util){
 //						chatAjax.showClientMsg(inputText,data);
                         chatAjax.redirectLogin(data);
 						chatAjax.afterSendMsg(inputText, data);
-					
+
 					},function(){
 						chatAjax.afterSendMsg(inputText);
 					});
@@ -88,12 +88,12 @@ define("chat",["util"],function(util){
 		putRecentMsg:function(msgId, msg, from, to,  mid, datetime){
 			var clientmsg = {
 					"id"   : msgId,
-					"from" : from, 
+					"from" : from,
 					"to" : to,
 					"type": "message_chat",
 					"version" : "1.0",
 					"body" : {
-						"content" : msg, 
+						"content" : msg,
 						"mid" : mid,
 						"datetime": util.parseDate(datetime).getTime()
 					}
@@ -117,7 +117,7 @@ define("chat",["util"],function(util){
 				}else if($(inputText).attr("rel") == "send-file"){
 					type = "[文件]";
 				}
-				
+
 			}catch(ee){}
 			var lastdatetime=$(".msg-wrap .msg:last").attr("time");
 			if(typeof lastdatetime !="undefined"){
@@ -147,7 +147,7 @@ define("chat",["util"],function(util){
 			$textc.find(".msg-avatar").find("p").html(user.realname || this.uid);
 			$textc.find(".msg-avatar").find("img").attr("src",user.avatar || "/img/default-avatar.png").attr("data-uid",user.uid);
 			$textc.appendTo(".msg-wrap");
-			
+
 			var isfind=false;
 			$("#jd-recent-contacts").find(".rc-wrap").find("li").each(function(){
 				if($(this).attr("conver")==chatAjax.conver){
@@ -178,7 +178,7 @@ define("chat",["util"],function(util){
 					get_contact_status(this.conver, function(data) {
 						$textl.find(".nickname span:eq(1)").addClass(get_status_class(data.body.presence));
 						if (data.body.presence == "off") {
-							$.grayscale($textl.find(".l img")); 
+							$.grayscale($textl.find(".l img"));
 						}
 					}, function(data) {
 //						console.log(data);
@@ -193,14 +193,14 @@ define("chat",["util"],function(util){
 					$textl.find(".nickname").text(DDstorage.get(this.conver+"info").name);
 				}
 				$textl.attr("id","recent-contact-"+this.conver);
-				
+
 				$textl.find(".rc-msg").html(type);
 				$textl.find(".r").text(util.formatDate(new Date(),"HH:mm:ss"));
 				$('#jd-recent-contacts .rc-wrap').prepend($textl);
 				if($("#jd-recent-contacts").is(":visible")){
 					util.recentContactDom(this.conver).click();
 				}
-				
+
 			}
 
 			var poll = require("poll");
@@ -220,7 +220,7 @@ define("chat",["util"],function(util){
 			var tContent=['<div class="time-stamp"><span></span></div>'];
 			return $(tContent.join(""));
 		},
-		
+
 		afterSendMsg:function(inputText, data){
 			if(data && data.body && data.body.mid){
 				$(".msg-self[mid='ms']").eq(0).attr("mid", data.body.mid);
@@ -249,14 +249,14 @@ define("chat",["util"],function(util){
 			$("#text_in").focus();
             $("a[download]").unbind("click").bind("click", function(){
                 var href = $(this).attr("href"), download = $(this).attr("download");
-                if(href.indexOf("http://storage.jd.com") == 0 || href.indexOf("http://s.timline.jd.com") == 0) {
+                if(href.indexOf("http://storage.dearcode.net") == 0 || href.indexOf("http://candy.dearcode.net") == 0) {
                     download = encodeURI(encodeURI(download));
                     href = "/file/download?url="+encodeURIComponent(href)+"&fileName="+download;
                     $(this).attr("href",href)
                 }
             });
 		},
-		
+
 		resendMsg:function(text, target){
 			if(!text){
 				return;
@@ -288,7 +288,7 @@ define("chat",["util"],function(util){
 				});
 				text = jdom.html();
 			}catch(e){
-				
+
 			}
 
 			var oldMsgId = target.attr("msgid");
@@ -325,8 +325,8 @@ define("chat",["util"],function(util){
 			}
 			$(".panel-msg .bd").scrollTop($(".msg-wrap").outerHeight()-$(".panel-msg .bd").height());
 		}
-		
+
 	};
-	
+
 	return chatAjax;
 });
