@@ -33,6 +33,7 @@
 			}, function(data) {
 			});
 
+	// 联系人
 	$("#jd-contact").on("click", ".hd", function() {
 				$(this).toggleClass("selected");
 				$(this).next().toggleClass("ui-hide");
@@ -334,40 +335,6 @@
             require(["visiting_card"], function(card){
                 card.show(datadom.attr("uid"));
             });
-//			var padom = datadom.parents("li");
-//			var idcard = $("#idcard").clone(), userinfo = null;
-//			idcard.find(".idcard-name").text(padom.find(".nickname").find("span:eq(0)").text());
-//			idcard.find(".idcard-phone").text("手机："+(datadom.attr("phone") || ""));
-//			if(datadom.attr("tel") && datadom.attr("tel") != "undefined"){
-//				idcard.find(".idcard-tel").text("座机："+datadom.attr("tel")).show();
-//			}
-//			idcard.find(".idcard-email").text("邮箱："+(datadom.attr("email") || ""));
-//			idcard.find(".idcard-pos").text("岗位："+(datadom.attr("pos") || ""));
-//			idcard.find(".idcard-orgname").text("部门："+datadom.attr("orgFullName") || "");
-//			idcard.find(".btn-wrap").attr("data", datadom.attr("uid"));
-//			var img = padom.find(".l img");
-//			var img1 = idcard.find(".idcard-img").attr("src", img.attr("src"));
-//			idcard.find(".btn-wrap a").eq(0).hide().end().eq(1).css("margin-left", "165px");
-//			jQuery.facebox(idcard.show());
-//
-//			var h = idcard.find(".pop-title").outerHeight()+idcard.find(".pop-content").outerHeight()+idcard.find(".green-btn").outerHeight() + 20;
-//			idcard.parent().height(h);
-//
-//			idcard.find(".btn-wrap a").on("click", function() {
-//						jQuery(document).trigger('close.facebox');
-//						var me = $("#panel-search-re").find(".rc-item.selected"), mod = $(this).parent().attr("data");
-//						var offset = me.offset();
-//						offset.left = offset.left + me.width() + 38;
-//						offset.top = offset.top + 23;
-//						if ($(".triangle-flag").is(":hidden")) {
-//							$(".triangle-flag").show().css(offset);
-//						} else {
-//							$(".triangle-flag").animate(offset);
-//						}
-//						require(["chat_window"], function(msgWindow) {
-//									msgWindow.create(mod, "customer");
-//								})
-//					})customer
 		}
 	})
 

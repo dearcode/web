@@ -1,6 +1,11 @@
 {{template "base/base.html" .}}
 {{define "head"}}
 <title>{{"用户登陆"}}</title>
+
+<link rel="stylesheet" href="/static/css/form-elements.css">
+<link rel="stylesheet" href="/static/css/style.css">
+<link rel="stylesheet" href="/static/lib/bootstrap/css/bootstrap.min.css">
+<link rel="stylesheet" href="/static/lib/font-awesome/css/font-awesome.min.css">
 {{end}}
 {{define "body"}}
 <!-- Top content -->

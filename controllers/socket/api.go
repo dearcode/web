@@ -18,13 +18,18 @@ func (s *Server) Post() {
 	}
 
 	ptype := s.GetString("ptype")
-	pname := s.GetString("pname")
 
-	log.Infof("ptype:%v pname:%v aid:%v uid:%v", ptype, pname, aid, uid)
+	log.Infof("ptype:%v aid:%v uid:%v", ptype, aid, uid)
 
 	switch ptype {
 	case "getSelfInfo":
-		s.getSelfInfo(uid)
+		s.getSelfInfo(aid, uid)
+	case "getContactStatus":
+		s.getContactStatus(aid, uid)
+	case "getRecentContact":
+		s.getRecentContact(aid, uid)
+	case "batchContactStatus":
+		s.batchContactStatus(aid, uid)
 	default:
 		log.Errorf("unknow type:%v", ptype)
 	}
@@ -38,7 +43,7 @@ func (s *Server) handleError(data string) {
 	http.Error(s.Ctx.ResponseWriter, data, http.StatusBadRequest)
 }
 
-func (s *Server) getSelfInfo(uid int64) {
+func (s *Server) getSelfInfo(aid string, uid int64) {
 	c, err := getClient(uid)
 	if err != nil {
 		log.Errorf("%v", err)
@@ -55,4 +60,35 @@ func (s *Server) getSelfInfo(uid int64) {
 	log.Debugf("data:%v", data)
 
 	s.handleOK(data)
+}
+
+// getContactStatus 查询联系人状态
+func (s *Server) getContactStatus(aid string, uid int64) {
+	from, err := s.GetInt64("from")
+	if err != nil {
+		log.Errorf("err:%v", err)
+		s.handleOK(util.Error(util.ErrFrom, err.Error()))
+		return
+	}
+
+	to, err := s.GetInt64("to")
+	if err != nil {
+		log.Errorf("err:%v", err)
+		s.handleOK(util.Error(util.ErrTo, err.Error()))
+		return
+	}
+
+	log.Debugf("from:%v to:%v", from, to)
+}
+
+// getRecentContact 查询最近联系人列表
+func (s *Server) getRecentContact(aid string, uid int64) {
+
+}
+
+// batchContactStatus 查询联系人状态
+func (s *Server) batchContactStatus(aid string, uid int64) {
+	pnames := s.GetString("pnames")
+	log.Debugf("pnames:%v", pnames)
+
 }

@@ -14,4 +14,8 @@ const (
 	ErrSessionTimeout = 5002
 	// ErrGetUserInfoByID
 	ErrGetUserInfoByID = 5003
+	// ErrFrom
+	ErrFrom = 5004
+	// ErrTo
+	ErrTo = 5005
 )

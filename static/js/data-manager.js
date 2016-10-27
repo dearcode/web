@@ -108,7 +108,7 @@ var get_recent_contact = function(suc, error) {
 	var defaults = {
 		"aid" : cookie("aid"),
 		"uid" : cookie("uid"),
-		"ptype" : "iep_get_recent_contact"
+		"ptype" : "getRecentContact"
 	};
 	data_ajax(suc, error, defaults, 1);
 }
@@ -117,6 +117,7 @@ var get_recent_contact = function(suc, error) {
 var get_contact_list = function(suc, error) {
 	var defaults = {
 		"aid" : cookie("aid"),
+		"uid" : cookie("uid"),
 		"from" : cookie("uid"),
 		"type" : "iq_roster_get",
 		"version" : "1.0",
@@ -131,13 +132,10 @@ var get_contact_list = function(suc, error) {
 var get_contact_status = function(contactId, suc, error) {
 	var defaults = {
 		"aid" : cookie("aid"),
+		"uid" : cookie("uid"),
 		"from" : cookie("uid"),
 		"to" : contactId,
-		"type" : "iq_presence_get",
-		"version" : "1.0",
-		"body" : {
-			"toWaiter" : true
-		}
+		"type" : "getContactStatus"
 	};
 	data_ajax(suc, error, defaults);
 }
@@ -147,10 +145,8 @@ var batch_contact_status = function(pnames, suc, error) {
 	var defaults = {
 		"aid" : cookie("aid"),
 		"uid" : cookie("uid"),
-		"ptype" : "iep_get_presence",
-		"pnames" : pnames,
-		"url" : "/api",
-		"operate" : "subscribe"
+		"ptype" : "batchContactStatus",
+		"pnames" : pnames
 	};
 	data_ajax(suc, error, defaults, 1);
 }
