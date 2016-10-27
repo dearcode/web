@@ -78,7 +78,6 @@ var contactStatusWorker = setInterval(function() {
 						contact.find(".offline-text").html(get_offline_str(obj.status.datetime));
 					} else if (presence == "away") {
 						contact.find(".offline-text").html(get_away_str(obj.status.datetime));
-
 					}
 				} else {// 状态切换了
 					img.attr("status", presence);
@@ -116,7 +115,7 @@ var userInfoWorker = setInterval(function(){
                         DDstorage.set(user.body.uid, user.body);
                     }
                 } catch(e) {
-
+					//console.log(e);
                 }
             }
         });
@@ -349,170 +348,171 @@ var get_recent_contact_re = function() {
 //好友列表
 var get_contact_list_re = function() {
 	get_contact_list(function(data) {
-				var groups = data.body.labels;
-				if (!groups || groups.length == 0) {
-					DDstorage.set("contactlistload", true);
-					$("#jd-contact").html('<div class="sret-null"><span>没有任何联系人</span>' + '<p>你可以搜索添加联系人</p></div>');
-					return;
-				}
-				groups.sort(function(a, b) {
-							return a.id - b.id;
-						});
-				var gstr = "", users = data.body.items, changyong = 0;
-				for (var i in groups) {
-					var group = groups[i];
-					if (group.uid == "SYSTEM" && group.name == "常用联系人") {
-						changyong = group.id;
+		var groups = data.body.labels;
+		if (!groups || groups.length == 0) {
+			DDstorage.set("contactlistload", true);
+			$("#jd-contact").html('<div class="sret-null"><span>没有任何联系人</span>' + '<p>你可以搜索添加联系人</p></div>');
+			return;
+		}
+		groups.sort(function(a, b) {
+			return a.id - b.id;
+		});
+		var gstr = "", users = data.body.items, changyong = 0;
+		for (var i in groups) {
+			var group = groups[i];
+			if (group.uid == "SYSTEM" && group.name == "常用联系人") {
+				changyong = group.id;
+			}
+            var gname = require("util").filterMsg(group.name);
+			gstr += '<div class="mod" name="' + gname + '" type="' + group.uid + '" labelId="' + group.id
+				+ '"><div class="hd"><div class="l"><span class="i"></span><span>' + gname
+				+ '</span></div>' + '<div class="r"><span class="online">0</span>/'
+				+ '<span class="allcontacts">0</span></div>' + '</div>'
+				+ '<div class="bd ui-hide"><ul class="wrap" id="contactmod-' + group.id + '">' + '</ul>'
+				+ '</div>' + '</div>';
+		}
+		var wrap = $("#jd-contact .mod-wrap").html(gstr);
+		if (changyong > 0) {
+			var cy = wrap.find(".mod[labelId=" + changyong + "]").eq(0);
+			cy.find(".hd").addClass("selected").next(".bd").removeClass("ui-hide");
+			wrap.prepend(cy);
+		}
+		$("#jd-add-group").attr("ver", data.body.ver).attr("seq", groups[groups.length - 1].seq);
+		if (!users || users.length == 0) {
+			DDstorage.set("contactlistload", true);
+			return;
+		}
+		for (var i in users) {
+			var user = users[i];
+			var str = ' <li class="item" conver="' + user.user.uid + '" id="contact-' + user.user.uid
+					+ '" kind="customer">' + '<div class="l">' + '<img src="../img/img-avatar.png" alt=""/>'
+					+ '</div>' + '<div class="m">' + '<div class="nickname"><span>' + user.user.uid
+					+ '</span><i class="offline-text"></i><span class=""></span></div>'
+					+ '<div class="rc-msg wto"></div>' + '</div><div class="r">'
+					+ '<span class="i i-ctt" data="' + user.user.uid + '" labelId="' + user.labelId
+					+ '"></span>' + '</div></li>'
+			var mod = $("#contactmod-" + user.labelId);
+			mod.append(str);
+		}
+		$(".l img").on("error", function(){
+			$(this).attr("src","../img/default-avatar.png");
+		})
+		$("#jd-contact").find(".mod").each(function() {
+			var items = $(this).find(".item");
+			$(this).find(".hd .allcontacts").text(items.length);
+		});
+
+        var util = require("util");
+		for (var i in users) {
+			var user = users[i], uid = user.user.uid;
+			// 用户状态
+			get_contact_status(user.user.uid, function(data) {
+				var contact = util.contactDom(data.from);
+				contact.find(".nickname span:eq(1)").addClass(get_status_class(data.body.presence));
+				if (data.body.presence != "off") {
+					var allcon = contact.parents(".mod:eq(0)").find(".hd").find(".online");
+					allcon.text(Number(allcon.text()) + 1);
+					if (data.body.presence == "away") {
+						contact.find(".offline-text").html(get_away_str(data.body.datetime))
 					}
-                    var gname = require("util").filterMsg(group.name);
-					gstr += '<div class="mod" name="' + gname + '" type="' + group.uid + '" labelId="' + group.id
-							+ '"><div class="hd"><div class="l"><span class="i"></span><span>' + gname
-							+ '</span></div>' + '<div class="r"><span class="online">0</span>/'
-							+ '<span class="allcontacts">0</span></div>' + '</div>'
-							+ '<div class="bd ui-hide"><ul class="wrap" id="contactmod-' + group.id + '">' + '</ul>'
-							+ '</div>' + '</div>';
+				} else {
+					contact.parent().append(contact);
+					var img = contact.find(".l img").attr("status", data.body.presence);
+					if (data.body.presence == "off") {
+						contact.find(".offline-text").text(get_offline_str(data.body.datetime))
+					}
+					$.grayscale(img);
 				}
-				var wrap = $("#jd-contact .mod-wrap").html(gstr);
-				if (changyong > 0) {
-					var cy = wrap.find(".mod[labelId=" + changyong + "]").eq(0);
-					cy.find(".hd").addClass("selected").next(".bd").removeClass("ui-hide");
-					wrap.prepend(cy);
-				}
-				$("#jd-add-group").attr("ver", data.body.ver).attr("seq", groups[groups.length - 1].seq);
-				if (!users || users.length == 0) {
-					DDstorage.set("contactlistload", true);
+			}, function(data) {
+				//console.log(data)
+			})
+			get_user_info(user.user.uid, function(data) {
+				var userinfo = data.body;
+				if (!userinfo || !userinfo.uid) {
 					return;
 				}
-				for (var i in users) {
-					var user = users[i];
-					var str = ' <li class="item" conver="' + user.user.uid + '" id="contact-' + user.user.uid
-							+ '" kind="customer">' + '<div class="l">' + '<img src="../img/img-avatar.png" alt=""/>'
-							+ '</div>' + '<div class="m">' + '<div class="nickname"><span>' + user.user.uid
-							+ '</span><i class="offline-text"></i><span class=""></span></div>'
-							+ '<div class="rc-msg wto"></div>' + '</div><div class="r">'
-							+ '<span class="i i-ctt" data="' + user.user.uid + '" labelId="' + user.labelId
-							+ '"></span>' + '</div></li>'
-					var mod = $("#contactmod-" + user.labelId);
-					mod.append(str);
+				var dom = util.contactDom(userinfo.uid);
+				dom.find(".nickname span:eq(0)").attr("title", userinfo.realname).text(userinfo.realname);
+				dom.find(".wto").attr("title", userinfo.signature).text(userinfo.signature);
+				if (userinfo.avatar) {// 如果有头像
+					dom.find(".l img").attr("src", userinfo.avatar);
 				}
-				$(".l img").on("error", function(){
-					$(this).attr("src","../img/default-avatar.png");
-				})
-				$("#jd-contact").find(".mod").each(function() {
-							var items = $(this).find(".item");
-							$(this).find(".hd .allcontacts").text(items.length);
-						});
-
-                var util = require("util");
-				for (var i in users) {
-					var user = users[i], uid = user.user.uid;
-					// 用户状态
-					get_contact_status(user.user.uid, function(data) {
-								var contact = util.contactDom(data.from);
-								contact.find(".nickname span:eq(1)").addClass(get_status_class(data.body.presence));
-								if (data.body.presence != "off") {
-									var allcon = contact.parents(".mod:eq(0)").find(".hd").find(".online");
-									allcon.text(Number(allcon.text()) + 1);
-									if (data.body.presence == "away") {
-										contact.find(".offline-text").html(get_away_str(data.body.datetime))
-									}
-								} else {
-									contact.parent().append(contact);
-									var img = contact.find(".l img").attr("status", data.body.presence);
-									if (data.body.presence == "off") {
-										contact.find(".offline-text").text(get_offline_str(data.body.datetime))
-									}
-									$.grayscale(img);
-								}
-							}, function(data) {
-
-							})
-					get_user_info(user.user.uid, function(data) {
-								var userinfo = data.body;
-								if (!userinfo || !userinfo.uid)
-									return;
-								var dom = util.contactDom(userinfo.uid);
-								dom.find(".nickname span:eq(0)").attr("title", userinfo.realname)
-										.text(userinfo.realname);
-								dom.find(".wto").attr("title", userinfo.signature).text(userinfo.signature);
-								if (userinfo.avatar) {// 如果有头像
-									dom.find(".l img").attr("src", userinfo.avatar);
-								}
-								DDstorage.set(userinfo.uid, userinfo);
-							});
-				}
-				DDstorage.set("contactlistload", true);
-			}, function(data) {
-				$(".loading").removeClass("show");
+				DDstorage.set(userinfo.uid, userinfo);
 			});
+		}
+		DDstorage.set("contactlistload", true);
+	}, function(data) {
+		$(".loading").removeClass("show");
+	});
 };
 
-var preGetRecentContactSuccCallback = function(arr){
-        var list = DDstorage.get("system_user_list");
-        if (!((arr && arr.length > 0 )|| (list && list.length > 0))) {
-            require(["poll"], function(pollReq) {
-                pollReq.poll();
-            });
-            $(".loading").removeClass("show");
-            return;
-        }
-        arr.sort(function(a, b) {
-            var inputDatea = new Date(a.datetime.replace(/-/g, "/"));
-            var inputDateb = new Date(b.datetime.replace(/-/g, "/"));
-            return inputDateb.getTime() - inputDatea.getTime();
-        });
-        var str = "";
-        if(list && list.length > 0) {
-            for(var j=0; j<list.length; j++) {
-                var key = list[j];
-                var info = DDstorage.get(key);
-                str += '<li class="rc-item" conver="'
-                    + info.uid
-                    + '" kind="system" id="recent-contact-'
-                    + info.uid
-                    + '"><div class="l"><img src="'+info.avatar+'" alt=""/>'
-                    + '<span class="i ui-hide"></span></div><div class="m"><div class="nickname"><span>'
-                    + info.realname
-                    + '</span><i class="offline-text"></i><span class=""></span></div><div class="rc-msg wto"></div></div>'
-                    + '<div class="r"></div></li>';
+var preGetRecentContactSuccCallback = function(arr) {
+	var list = DDstorage.get("system_user_list");
+    if (!((arr && arr.length > 0 )|| (list && list.length > 0))) {
+    	require(["poll"], function(pollReq) {
+        	pollReq.poll();
+		});
+		$(".loading").removeClass("show");
+		return;
+	}
+    arr.sort(function(a, b) {
+    	var inputDatea = new Date(a.datetime.replace(/-/g, "/"));
+        var inputDateb = new Date(b.datetime.replace(/-/g, "/"));
+        return inputDateb.getTime() - inputDatea.getTime();
+    });
+
+    var str = "";
+    if(list && list.length > 0) {
+        for(var j=0; j<list.length; j++) {
+            var key = list[j];
+            var info = DDstorage.get(key);
+            str += '<li class="rc-item" conver="'
+                + info.uid
+                + '" kind="system" id="recent-contact-'
+                + info.uid
+                + '"><div class="l"><img src="'+info.avatar+'" alt=""/>'
+                + '<span class="i ui-hide"></span></div><div class="m"><div class="nickname"><span>'
+                + info.realname
+                + '</span><i class="offline-text"></i><span class=""></span></div><div class="rc-msg wto"></div></div>'
+                + '<div class="r"></div></li>';
+    	}
+    }
+
+    if(arr) {
+        for (var i in arr) {
+            var obj = arr[i], time = null, now = new Date();
+            var inputDate = new Date(obj.datetime.replace(/-/g, "/"));
+            if (new Date(now.getFullYear() + "/" + (now.getMonth() + 1) + "/" + now.getDate()).getTime() - inputDate.getTime() > 0) {
+                time = obj.datetime.substring(5, 10);
+            } else {
+                time = obj.datetime.substring(10, 19);
             }
-        }
-        if(arr) {
-            for (var i in arr) {
-                var obj = arr[i], time = null, now = new Date();
-                var inputDate = new Date(obj.datetime.replace(/-/g, "/"));
-                if (new Date(now.getFullYear() + "/" + (now.getMonth() + 1) + "/" + now.getDate()).getTime()
-                    - inputDate.getTime() > 0) {
-                    time = obj.datetime.substring(5, 10);
-                } else {
-                    time = obj.datetime.substring(10, 19);
-                }
-                if(time.indexOf("NaN") >= 0) {
-                    time = "";
-                }
-                var _kind = obj.kind;
-                var _avatar = Timline.defaultAvatars.customer;
-                if(_kind == "group"){
-                    _kind = obj.groupKind;
-                    _avatar = Timline.defaultAvatars[_kind];
-                } else {
-                    Timline.pushUids(obj.id);
-                }
-                str += '<li class="rc-item" conver="'
-                    + obj.id
-                    + '" kind="'
-                    + _kind
-                    + '" id="recent-contact-'
-                    + obj.id
-                    + '"><div class="l"><img src="'+_avatar+'" alt=""/>'
-                    + '<span class="i ui-hide"></span></div><div class="m"><div class="nickname"><span>'
-                    + obj.id
-                    + '</span><i class="offline-text"></i><span class=""></span></div><div class="rc-msg wto"></div></div>'
-                    + '<div class="r">' + time + '</div></li>';
+            if(time.indexOf("NaN") >= 0) {
+                time = "";
             }
+            var _kind = obj.kind;
+            var _avatar = Timline.defaultAvatars.customer;
+            if(_kind == "group") {
+                _kind = obj.groupKind;
+                _avatar = Timline.defaultAvatars[_kind];
+            } else {
+                Timline.pushUids(obj.id);
+            }
+            str += '<li class="rc-item" conver="'
+                + obj.id
+                + '" kind="'
+                + _kind
+                + '" id="recent-contact-'
+                + obj.id
+                + '"><div class="l"><img src="'+_avatar+'" alt=""/>'
+                + '<span class="i ui-hide"></span></div><div class="m"><div class="nickname"><span>'
+                + obj.id
+                + '</span><i class="offline-text"></i><span class=""></span></div><div class="rc-msg wto"></div></div>'
+                + '<div class="r">' + time + '</div></li>';
         }
-        $("#jd-recent-contacts").find(".rc-wrap").html(str);
-        $(".loading").removeClass("show");
+    }
+    $("#jd-recent-contacts").find(".rc-wrap").html(str);
+    $(".loading").removeClass("show");
 };
 
 require(['widget/Tab'], function(Tab) {
@@ -546,25 +546,24 @@ require(['widget/Tab'], function(Tab) {
 				var that = this, time = 0;
 				clearInterval(that.timer);
 				that.timer = setInterval(function() {
-							time += 200;
-							if (DDstorage.get("groupdidload")) {
-								// 最近联系人列表
-								get_recent_contact_re();
-								clearTimeout(that.timer);
-								that.loadRecent = true;
-							} else if (time > 3000) {
-								clearTimeout(that.timer);
-								$(".loading").removeClass("show");
-								$("#jd-recent-contacts")
-										.html('<div class="sret-null"><span>没有数据</span>'
+					time += 200;
+					if (DDstorage.get("groupdidload")) {
+						// 最近联系人列表
+						get_recent_contact_re();
+						clearTimeout(that.timer);
+						that.loadRecent = true;
+					} else if (time > 3000) {
+						clearTimeout(that.timer);
+						$(".loading").removeClass("show");
+						$("#jd-recent-contacts").html('<div class="sret-null"><span>没有数据</span>'
 												+ '<p>没有查询到数据哦，'
 												+ '<span class="refresh" style="color:blue;text-decoration:underline;cursor:pointer">'
 												+ '刷新一下</span></p></div>');
-								$("#jd-recent-contacts").find(".refresh").on("click", function() {
-											$('#recent-contacts').click();
-										})
-							}
-						}, 200);
+						$("#jd-recent-contacts").find(".refresh").on("click", function() {
+							$('#recent-contacts').click();
+						})
+					}
+				}, 200);
 			} else if (index == 1) {
 				if (this.loadContact) {
 					$(".loading").removeClass("show");
@@ -585,16 +584,13 @@ require(['widget/Tab'], function(Tab) {
 						} else if (time > 3000) {
 							clearTimeout(that.timer);
 							$(".loading").removeClass("show");
-							$("#jd-contact")
-									.find(".mod-wrap")
-									.empty()
-									.html('<div class="sret-null"><span>没有数据</span>'
+							$("#jd-contact").find(".mod-wrap").empty().html('<div class="sret-null"><span>没有数据</span>'
 											+ '<p>没有查询到数据哦，'
 											+ '<span class="refresh" style="color:blue;text-decoration:underline;cursor:pointer">'
 											+ '刷新一下</span></p></div>');
 							$("#jd-contact").find(".refresh").on("click", function() {
-										$('#tabPanelMainHd-contacts').click();
-									})
+								$('#tabPanelMainHd-contacts').click();
+							})
 						}
 					}, 200);
 				} else {
@@ -623,7 +619,7 @@ require(['widget/Tab'], function(Tab) {
 						$(".loading").removeClass("show");
 						$("#jd-org-tree .loading-failed").remove();
 						$("#jd-org-tree").append("<div class='sret-null loading-failed'>加载失败，点击<a href='#reload'>这里</a>重试！</div>");
-						$("#jd-org-tree .loading-failed").click(function(){
+						$("#jd-org-tree .loading-failed").click(function() {
 							$(".loading").addClass("show");
 							$(this).remove();
 							require(["org_tree"], function(tree){
@@ -638,76 +634,79 @@ require(['widget/Tab'], function(Tab) {
 });
 
 $(".send").click(function() {
-			require(["chat"], function(chat) {
-						chat.send();
-					});
-		});
-$("#clearmonitor").click(function() {
-			$(".msg-wrap").empty();
-		});
-$("#text_in").keydown(function(e) {
-			if (e.keyCode == 13 && !e.shiftKey) {
-				require(["chat"], function(chat) {
-							chat.send();
-						});
-				return false;
-			}
-		});
-$("#recent-contacts").click(function() {
-			$(".i-rmsg-num").hide();
-		});
-$(document.body).delegate('.msg-wrap .load-more', 'click', function() {
-			var morecount = $("#chat_load_more").attr("count");
-			if (morecount > 2) {
-				$("#clearmonitor").removeClass("ui-hide");
-			} else {
-				$("#chat_load_more").attr("count", parseInt(morecount) + 1);
-			}
-			msgFixed.getScrollTop();
-			require(["chat_window"], function(chat_window) {
-						var t = $('.panel-msg .bd');
-						chat_window.getHistoryMsg("loadmore");
-						t.data('hasScrollToTopCounter', 0);
-					});
+	require(["chat"], function(chat) {
+		chat.send();
+	});
+});
 
+$("#clearmonitor").click(function() {
+	$(".msg-wrap").empty();
+});
+
+$("#text_in").keydown(function(e) {
+	if (e.keyCode == 13 && !e.shiftKey) {
+		require(["chat"], function(chat) {
+			chat.send();
 		});
+		return false;
+	}
+});
+
+$("#recent-contacts").click(function() {
+	$(".i-rmsg-num").hide();
+});
+
+$(document.body).delegate('.msg-wrap .load-more', 'click', function() {
+	var morecount = $("#chat_load_more").attr("count");
+	if (morecount > 2) {
+		$("#clearmonitor").removeClass("ui-hide");
+	} else {
+		$("#chat_load_more").attr("count", parseInt(morecount) + 1);
+	}
+	msgFixed.getScrollTop();
+	require(["chat_window"], function(chat_window) {
+		var t = $('.panel-msg .bd');
+		chat_window.getHistoryMsg("loadmore");
+		t.data('hasScrollToTopCounter', 0);
+	});
+});
+
 var timerId;
 $(window).bind('mousewheel', function(event) {
-			if (timerId) {
-				clearTimeout(timerId);
-				timerId = null;
-				return;
+	if (timerId) {
+		clearTimeout(timerId);
+		timerId = null;
+		return;
+	}
+
+	var target = $(event.target);
+	var me = $('.panel-msg .bd');
+	var key = 'hasScrollToTopCounter';
+	timerId = setTimeout((function(me) {
+		return function() {
+			var scrollTop = me.scrollTop();
+			me.data(key) === undefined && me.data(key, 0);
+			if (scrollTop < 50) {
+				me.data(key, me.data(key) + 1);
 			}
-			var target = $(event.target);
-			var me = $('.panel-msg .bd');
-			var key = 'hasScrollToTopCounter';
-			timerId = setTimeout((function(me) {
-						return function() {
-							var scrollTop = me.scrollTop();
-
-							me.data(key) === undefined && me.data(key, 0);
-							if (scrollTop < 50) {
-								me.data(key, me.data(key) + 1);
-							}
-							if (scrollTop > 150) {
-								me.data(key) === 1 && me.data(key, me.data(key) - 1);
-							}
-							if (me.data(key) > 1) {
-								if(target.hasClass("msg")){
-									$('.msg-wrap .load-more').click();
-								}
-							}
-						}
-					})(me), 20);
-
-		});
+			if (scrollTop > 150) {
+				me.data(key) === 1 && me.data(key, me.data(key) - 1);
+			}
+			if (me.data(key) > 1) {
+				if(target.hasClass("msg")) {
+					$('.msg-wrap .load-more').click();
+				}
+			}
+		}
+	})(me), 20);
+});
 
 $(document.body).delegate('.panel-msg .title .i', 'click', function() {
-			var uid = $(".panel-view").attr("conver");
-            require(["visiting_card"], function(card){
-                card.show(uid);
-            });
-		});
+	var uid = $(".panel-view").attr("conver");
+    require(["visiting_card"], function(card){
+		card.show(uid);
+	});
+});
 
 // 聊天页面随屏幕分辨率自适应
 ({
@@ -743,8 +742,8 @@ $(document.body).delegate('.panel-msg .title .i', 'click', function() {
 		contactModWrap.height(pmainH - 210);
 		panelsWrap.height(pmainH - 20);
 		bdList.each(function() {
-					$(this).height(pmainH - 94);
-				});
+			$(this).height(pmainH - 94);
+		});
 	},
 	init : function() {
 		this.bindEvt();
@@ -752,8 +751,8 @@ $(document.body).delegate('.panel-msg .title .i', 'click', function() {
 	bindEvt : function() {
 		var me = this;
 		$(window).resize(function() {
-					me.initHeight();
-				}).trigger('resize');
+			me.initHeight();
+		}).trigger('resize');
 	}
 }).init();
 
@@ -1003,7 +1002,7 @@ require(["chat", "util", "chat_window", "share", "upload"], function(chat, util,
     });
 
     //粘贴事件必须延迟一些，否则获取不到数据
-    $("#text_in").bind("paste", function(){
+    $("#text_in").bind("paste", function() {
         setTimeout(function(){
             $("#text_in").click();
         }, 50);
@@ -1015,12 +1014,12 @@ require(["chat", "util", "chat_window", "share", "upload"], function(chat, util,
         $("#text_in").parent().parent().height(h3);
     });
 
-    $(".msg").delegate(".message-img", "error", function(){
+    $(".msg").delegate(".message-img", "error", function() {
         $(this).attr("src", $(this).attr("src"))
     });
 
     //搜索框添加粘贴事件处理
-    $("#panel-search").bind("paste", function(){
+    $("#panel-search").bind("paste", function() {
         var _this = this;
         setTimeout(function(){
             $(_this).keydown();
@@ -1029,7 +1028,7 @@ require(["chat", "util", "chat_window", "share", "upload"], function(chat, util,
 })();
 
 //头像加载失败
-reloadDefaultAvatar = function (that){
+reloadDefaultAvatar = function (that) {
     if(that && $(that).is("img")) {
         $(that).attr("src", Timline.defaultAvatars.customer);
     }
@@ -1056,7 +1055,7 @@ var Timline = (function() {
     var _pushUids = function(uid){
        if(_isExist(uid)){
            return -1;
-       } else if( typeof uid == "string" && !$.isNumeric(uid)){
+       } else if( typeof uid == "string" && !$.isNumeric(uid)) {
           return _uniqueUids.push(uid);
        } else {
            return -2;
