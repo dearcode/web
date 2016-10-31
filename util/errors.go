@@ -20,4 +20,6 @@ const (
 	ErrTo = 5005
 	// ErrType
 	ErrType = 5006
+	// ErrUnmarshalData
+	ErrUnmarshalData = 5007
 )

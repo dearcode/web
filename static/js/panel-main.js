@@ -6,7 +6,7 @@
 	get_self_info(function(data) {
 		require(["util"], function(util) {
 			if (data.Code && data.Code != 0) {
-				alert(data.Msg);
+				util.alert("提示", data.Msg);
 				util.cookie("aid", "");
 				util.cookie("uid", "");
 				util.cookie("sessionid", "");
@@ -249,7 +249,7 @@
 			str += '<ul class="rc-wrap">'
 			+'<li class="rc-item" id="search-re-'+groups[i].gid+'" conver="'+groups[i].gid+'" kind="'+groups[i].kind+'"> '
 			+'  <div class="l">'
-			+'      <img src="../img/team-avatar.png" >'
+			+'      <img src="../img/default-avatar.png" >'
 			+'  </div> '
 			+'      <div class="m">'
 			+'          <div class="nickname">'

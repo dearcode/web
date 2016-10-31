@@ -1,5 +1,5 @@
 /**
- * @author yfwuhuan
+ *
  */
 
 define("chat_window",["util"],function(util){

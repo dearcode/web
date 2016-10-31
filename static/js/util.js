@@ -446,7 +446,7 @@ define("util",function(require, exports, module){
 
         var reg = /(http:\/\/|https:\/\/)((\w|=|\?|\.|\/|&|-|\+|\(|\)|;|%|#|,|_|:)+)/g;
         var atag;
-        
+
         if (reg.test(msg)) {
             atag = msg.replace(reg,
                 "<a href='$1$2' target=\"_blank\" tips='tips'>$1$2</a>");

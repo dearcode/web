@@ -23,7 +23,7 @@
         <div class="hd">
             <ul class="user-info" id="panel-user-info">
                 <li class="avatar" id="user-avatar">
-                    <a href="#editAvatar"><img src="/static/img/team-avatar.png" alt="avatar" data-grayscale="true" title="点击修改头像"/></a>
+                    <a href="#editAvatar"><img src="/static/img/default-avatar.png" alt="avatar" data-grayscale="true" title="点击修改头像"/></a>
                 </li>
                 <li class="user-nick">
                     <strong></strong>
@@ -365,9 +365,11 @@
 
 
     <script type="text/javascript" src="/static/js/data-manager.js" charset="utf-8"></script>
+    <script type="text/javascript" src="/static/js/panel-main.js" charset="utf-8"></script>
     <script type="text/javascript" src="/static/js/userInfo.js"></script>
 
-    <script type="text/javascript" src="/static/js/contact-menu.js" charset="utf-8"></script>
-    <script type="text/javascript" src="/static/js/panel-main.js" charset="utf-8"></script>
+
+    <!-- <script type="text/javascript" src="/static/js/contact-menu.js" charset="utf-8"></script> -->
+
 
 {{end}}

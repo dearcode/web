@@ -119,13 +119,9 @@ var get_contact_list = function(suc, error) {
 		"aid" : cookie("aid"),
 		"uid" : cookie("uid"),
 		"from" : cookie("uid"),
-		"type" : "iq_roster_get",
-		"version" : "1.0",
-		"body" : {
-			"ver" : 0
-		}
+		"ptype" : "getContactList"
 	};
-	data_ajax(suc, error, defaults);
+	data_ajax(suc, error, defaults, 1);
 }
 
 /* 查询联系人状态 */
@@ -135,9 +131,9 @@ var get_contact_status = function(contactId, suc, error) {
 		"uid" : cookie("uid"),
 		"from" : cookie("uid"),
 		"to" : contactId,
-		"type" : "getContactStatus"
+		"ptype" : "getContactStatus"
 	};
-	data_ajax(suc, error, defaults);
+	data_ajax(suc, error, defaults, 1);
 }
 
 /* 查询联系人状态 */
@@ -159,11 +155,7 @@ var add_friend = function(friendUid, labelId, suc, error) {
 		"aid" : cookie("aid"),
 		"from" : cookie("uid"),
 		"to" : friendUid,
-		"type" : "presence_subscribe",
-		"version" : "1.0",
-		"body" : {
-			"labelId" : labelId
-		}
+		"ptype" : "presence_subscribe"
 	};
 	data_ajax(suc, error, defaults);
 };
@@ -180,11 +172,7 @@ var delete_friend = function(friendUid, both, suc, error) {
 		"aid" : cookie("aid"),
 		"from" : cookie("uid"),
 		"to" : friendUid,
-		"type" : "presence_unsubscribe",
-		"version" : "1.0",
-		"body" : {
-			"both" : isBoth
-		}
+		"ptype" : "presence_unsubscribe"
 	};
 	data_ajax(suc, error, defaults);
 };
@@ -194,14 +182,7 @@ var move_friend = function(lableId, friendUid, suc, error) {
 	var defaults = {
 		"aid" : cookie("aid"),
 		"from" : cookie("uid"),
-		"type" : "iq_roster_item_move",
-		"version" : "1.0",
-		"body" : {
-			"labelId" : lableId,
-			"user" : {
-				"uid" : friendUid
-			}
-		}
+		"ptype" : "iq_roster_item_move"
 	};
 	data_ajax(suc, error, defaults);
 };
@@ -214,13 +195,7 @@ var addorModify_friend_label = function(labelId, name, seq, suc, error) {
 	var defaults = {
 		"aid" : cookie("aid"),
 		"from" : cookie("uid"),
-		"type" : "iq_roster_label_set",
-		"version" : "1.0",
-		"body" : {
-			"name" : name,
-			"id" : labelId,
-			"seq" : seq
-		}
+		"ptype" : "iq_roster_label_set"
 	};
 	data_ajax(suc, error, defaults, 0, false);
 };
@@ -230,11 +205,7 @@ var delete_friend_label = function(labelId, suc, error) {
 	var defaults = {
 		"aid" : cookie("aid"),
 		"from" : cookie("uid"),
-		"type" : "iq_roster_label_delete",
-		"version" : "1.0",
-		"body" : {
-			"id" : labelId
-		}
+		"ptype" : "iq_roster_label_delete"
 	};
 	data_ajax(suc, error, defaults);
 };
@@ -244,13 +215,7 @@ var update_user_presence = function(presence, action, suc, error) {
 	var defaults = {
 		"aid" : cookie("aid"),
 		"from" : cookie("uid"),
-		"type" : "presence",
-		"version" : "1.0",
-		"body" : {
-			"presence" : presence,
-            "clientType":"web",
-			"action" : action
-		}
+		"ptype" : "presence"
 	};
 	data_ajax(suc, error, defaults);
 };
@@ -260,11 +225,7 @@ var get_group_list = function(suc, error) {
 	var defaults = {
 		"aid" : cookie("aid"),
 		"from" : cookie("uid"),
-		"type" : "iq_group_get",
-		"version" : "1.0",
-		"body" : {
-			"id" : 0
-		}
+		"ptype" : "iq_group_get"
 	};
 	data_ajax(suc, error, defaults);
 }
@@ -274,11 +235,7 @@ var get_group_info = function(gid, suc, error) {
 	var defaults = {
 		"aid" : cookie("aid"),
 		"from" : cookie("uid"),
-		"type" : "iq_group_get",
-		"version" : "1.0",
-		"body" : {
-			"gid" : gid
-		}
+		"ptype" : "iq_group_get"
 	};
 	data_ajax(suc, error, defaults);
 }
@@ -288,12 +245,7 @@ var get_group_user_list = function(gid, suc, error) {
 	var defaults = {
 		"aid" : cookie("aid"),
 		"from" : cookie("uid"),
-		"type" : "iq_group_roster_get",
-		"version" : "1.0",
-		"body" : {
-			"ver" : 1,
-			gid : gid
-		}
+		"ptype" : "iq_group_roster_get"
 	};
 	data_ajax(suc, error, defaults);
 }
@@ -303,7 +255,7 @@ var create_group = function(suc, error) {
 	var defaults = {
 		"aid" : cookie("aid"),
 		"from" : cookie("uid"),
-		"type" : "iq_group_set"
+		"ptype" : "iq_group_set"
 	};
 	data_ajax(suc, error, defaults);
 }

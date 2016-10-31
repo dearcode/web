@@ -348,54 +348,48 @@ var get_recent_contact_re = function() {
 //好友列表
 var get_contact_list_re = function() {
 	get_contact_list(function(data) {
-		var groups = data.body.labels;
-		if (!groups || groups.length == 0) {
+		var count = data.Count;
+		if (!count || count == 0) {
 			DDstorage.set("contactlistload", true);
 			$("#jd-contact").html('<div class="sret-null"><span>没有任何联系人</span>' + '<p>你可以搜索添加联系人</p></div>');
 			return;
 		}
-		groups.sort(function(a, b) {
-			return a.id - b.id;
-		});
-		var gstr = "", users = data.body.items, changyong = 0;
-		for (var i in groups) {
-			var group = groups[i];
-			if (group.uid == "SYSTEM" && group.name == "常用联系人") {
-				changyong = group.id;
-			}
-            var gname = require("util").filterMsg(group.name);
-			gstr += '<div class="mod" name="' + gname + '" type="' + group.uid + '" labelId="' + group.id
-				+ '"><div class="hd"><div class="l"><span class="i"></span><span>' + gname
-				+ '</span></div>' + '<div class="r"><span class="online">0</span>/'
-				+ '<span class="allcontacts">0</span></div>' + '</div>'
-				+ '<div class="bd ui-hide"><ul class="wrap" id="contactmod-' + group.id + '">' + '</ul>'
-				+ '</div>' + '</div>';
-		}
+
+		var gstr="", users = data.Users;
+		var gname ="好友列表";
+		var gid = 1;
+		var gname = require("util").filterMsg(gname);
+		gstr += '<div class="mod" name="' + gname + '" type="' + gid + '" labelId="' + gid
+			+ '"><div class="hd"><div class="l"><span class="i"></span><span>' + gname
+			+ '</span></div>' + '<div class="r"><span class="online">0</span>/'
+			+ '<span class="allcontacts">0</span></div>' + '</div>'
+			+ '<div class="bd ui-hide"><ul class="wrap" id="contactmod-' + gid + '">' + '</ul>'
+			+ '</div>' + '</div>';
+
 		var wrap = $("#jd-contact .mod-wrap").html(gstr);
-		if (changyong > 0) {
-			var cy = wrap.find(".mod[labelId=" + changyong + "]").eq(0);
-			cy.find(".hd").addClass("selected").next(".bd").removeClass("ui-hide");
-			wrap.prepend(cy);
-		}
-		$("#jd-add-group").attr("ver", data.body.ver).attr("seq", groups[groups.length - 1].seq);
+		var cy = wrap.find(".mod[labelId=" + gid + "]").eq(0);
+		cy.find(".hd").addClass("selected").next(".bd").removeClass("ui-hide");
+		wrap.prepend(cy);
+
 		if (!users || users.length == 0) {
 			DDstorage.set("contactlistload", true);
 			return;
 		}
+
 		for (var i in users) {
 			var user = users[i];
-			var str = ' <li class="item" conver="' + user.user.uid + '" id="contact-' + user.user.uid
-					+ '" kind="customer">' + '<div class="l">' + '<img src="../img/img-avatar.png" alt=""/>'
-					+ '</div>' + '<div class="m">' + '<div class="nickname"><span>' + user.user.uid
+			var str = ' <li class="item" conver="' + user.ID + '" id="contact-' + user.ID
+					+ '" kind="customer">' + '<div class="l">' + '<img src="/static/img/img-avatar.png" alt=""/>'
+					+ '</div>' + '<div class="m">' + '<div class="nickname"><span>' + user.NickName
 					+ '</span><i class="offline-text"></i><span class=""></span></div>'
 					+ '<div class="rc-msg wto"></div>' + '</div><div class="r">'
-					+ '<span class="i i-ctt" data="' + user.user.uid + '" labelId="' + user.labelId
+					+ '<span class="i i-ctt" data="' + user.ID + '" labelId="' + user.ID
 					+ '"></span>' + '</div></li>'
-			var mod = $("#contactmod-" + user.labelId);
+			var mod = $("#contactmod-" + gid);
 			mod.append(str);
 		}
 		$(".l img").on("error", function(){
-			$(this).attr("src","../img/default-avatar.png");
+			$(this).attr("src","/static/img/default-avatar.png");
 		})
 		$("#jd-contact").find(".mod").each(function() {
 			var items = $(this).find(".item");
@@ -404,40 +398,40 @@ var get_contact_list_re = function() {
 
         var util = require("util");
 		for (var i in users) {
-			var user = users[i], uid = user.user.uid;
+			var user = users[i], uid = user.ID;
 			// 用户状态
-			get_contact_status(user.user.uid, function(data) {
-				var contact = util.contactDom(data.from);
-				contact.find(".nickname span:eq(1)").addClass(get_status_class(data.body.presence));
-				if (data.body.presence != "off") {
+			get_contact_status(user.ID, function(data) {
+				var contact = util.contactDom(user.ID);
+				contact.find(".nickname span:eq(1)").addClass(get_status_class(data.Status));
+				if (data.Status != "off") {
 					var allcon = contact.parents(".mod:eq(0)").find(".hd").find(".online");
 					allcon.text(Number(allcon.text()) + 1);
-					if (data.body.presence == "away") {
-						contact.find(".offline-text").html(get_away_str(data.body.datetime))
+					if (data.Status == "away") {
+						contact.find(".offline-text").html(get_away_str(data.Datetime))
 					}
 				} else {
 					contact.parent().append(contact);
-					var img = contact.find(".l img").attr("status", data.body.presence);
-					if (data.body.presence == "off") {
-						contact.find(".offline-text").text(get_offline_str(data.body.datetime))
+					var img = contact.find(".l img").attr("status", data.Status);
+					if (data.Status == "off") {
+						contact.find(".offline-text").text(get_offline_str(data.Datetime))
 					}
 					$.grayscale(img);
 				}
 			}, function(data) {
 				//console.log(data)
 			})
-			get_user_info(user.user.uid, function(data) {
-				var userinfo = data.body;
-				if (!userinfo || !userinfo.uid) {
+			get_user_info(user.ID, function(data) {
+				var userinfo = data;
+				if (!userinfo || !userinfo.ID) {
 					return;
 				}
-				var dom = util.contactDom(userinfo.uid);
-				dom.find(".nickname span:eq(0)").attr("title", userinfo.realname).text(userinfo.realname);
-				dom.find(".wto").attr("title", userinfo.signature).text(userinfo.signature);
-				if (userinfo.avatar) {// 如果有头像
-					dom.find(".l img").attr("src", userinfo.avatar);
+				var dom = util.contactDom(userinfo.ID);
+				dom.find(".nickname span:eq(0)").attr("title", userinfo.NickName).text(userinfo.NickName);
+				dom.find(".wto").attr("title", userinfo.Signature).text(userinfo.Signature);
+				if (userinfo.Avatar && userinfo.Avatar != "") {// 如果有头像
+					dom.find(".l img").attr("src", userinfo.Avatar);
 				}
-				DDstorage.set(userinfo.uid, userinfo);
+				DDstorage.set(userinfo.ID, userinfo);
 			});
 		}
 		DDstorage.set("contactlistload", true);
@@ -530,6 +524,7 @@ require(['widget/Tab'], function(Tab) {
 			$("#jd-contact,#jd-recent-contacts").find("li.selected").removeClass("selected");
 			$("#jd-group div.selected").removeClass("selected");
 			this.timer && clearTimeout(this.timer);
+			//最近会话
 			if (index == 0) {
 				if (this.loadRecent) {
 					$(".loading").removeClass("show");
@@ -564,6 +559,7 @@ require(['widget/Tab'], function(Tab) {
 						})
 					}
 				}, 200);
+			// 好友列表
 			} else if (index == 1) {
 				if (this.loadContact) {
 					$(".loading").removeClass("show");
@@ -597,6 +593,7 @@ require(['widget/Tab'], function(Tab) {
                     $(".loading").removeClass("show");
 					this.loadContact = true;
 				}
+			//群组列表
 			} else if (index == 2) {
                 $(".loading").addClass("show");
                 $(".loading").removeClass("show");
@@ -608,26 +605,8 @@ require(['widget/Tab'], function(Tab) {
 				$(".loading").addClass("show");
 				var that = this;
 				$(".loading").removeClass("show");
-			}else if(index == 3){
-				$(".loading").addClass("show");
-				require(["org_tree"], function(tree){
-					tree.showOrgTree();
-				});
-				setTimeout(function(){
-					if($("#jd-org-tree").find(".treetable").length == 0){
-						//加载失败
-						$(".loading").removeClass("show");
-						$("#jd-org-tree .loading-failed").remove();
-						$("#jd-org-tree").append("<div class='sret-null loading-failed'>加载失败，点击<a href='#reload'>这里</a>重试！</div>");
-						$("#jd-org-tree .loading-failed").click(function() {
-							$(".loading").addClass("show");
-							$(this).remove();
-							require(["org_tree"], function(tree){
-								tree.showOrgTree();
-							});
-						});
-					}
-				}, 5000);
+			}else {
+				console.log("...");
 			}
 		}
 	});
@@ -1039,9 +1018,9 @@ var Timline = (function() {
         _uniqueGids = [],
         _notifications = {},
         _defaultAvatars = {
-            customer : "../img/img-avatar.png",
-            discussion_group : "../img/team-avatar.png",
-            temp_group : "../img/mainchat-avatar.png"
+            customer : "/static/img/img-avatar.png",
+            discussion_group : "/static/img/team-avatar.png",
+            temp_group : "/static/img/mainchat-avatar.png"
         };
 
     var _getUids = function(){
