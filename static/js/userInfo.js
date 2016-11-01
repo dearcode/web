@@ -130,7 +130,7 @@ require(["util"], function(util) {
                 obj.type = "presence";
                 obj.from = uid;
                 var str = JSON.stringify(obj);
-                var url = "/dispatch.action?webJson="+str;
+                var url = "/api.action?webJson="+str;
                 /*先注释掉guowei
                 $.getJSON(url,function(data) {//成功返回即可
                     $("#user_state").attr("class",classValue);

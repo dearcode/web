@@ -9,6 +9,10 @@ import (
 	"github.com/dearcode/web/util"
 )
 
+func (s *Server) Get() {
+
+}
+
 func (s *Server) Post() {
 	s.TplName = "post.tpl"
 	log.Infof("ApiAction POST")

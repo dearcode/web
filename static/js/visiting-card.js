@@ -89,7 +89,7 @@ define(function(require, exports, modules){
         req.body = {};
         req.body.ver = "1";
         $.ajax({
-            url:"/dispatch.action",
+            url:"/api.action",
             data:{
                 webJson:JSON.stringify(req)
             },
@@ -180,7 +180,7 @@ define(function(require, exports, modules){
                 }
             };
             $.ajax({
-                url:"/dispatch.action",
+                url:"/api.action",
                 data:{
                     webJson:JSON.stringify(req)
                 },
@@ -280,7 +280,7 @@ define(function(require, exports, modules){
             req.body = {};
             req.body.both = false;
             $.ajax({
-                url:"/dispatch.action",
+                url:"/api.action",
                 data:{
                     webJson:JSON.stringify(req)
                 },

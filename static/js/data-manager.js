@@ -606,7 +606,7 @@ var data_ajax = function(suc, error, defaults, type, async) {
 					type : 'post',
 					dataType : "json",
 					async : async,
-					url : '/dispatch.action',
+					url : '/api.action',
 					data : {
 						webJson : JSON.stringify(defaults)
 					},

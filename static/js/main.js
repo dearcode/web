@@ -1,10 +1,12 @@
 
 require.config({
 	paths : {
+		facebox : "./widget/facebox",
 		expression : "./expression",
 		jcrop : "./jquery.Jcrop.min",
 		avatar : "./avatar",
 		notification : "./notification",
+		poll:"./push",
 		team_msg : "./team-msg",
 		visiting_card:"./visiting-card"
 	},

@@ -186,7 +186,7 @@ function show_search_card(userinfo){
 		req.body = {};
 		req.body.ver = "1";
 		$.ajax({
-					url : "/dispatch.action",
+					url : "/api.action",
 					data : {
 						webJson : JSON.stringify(req)
 					},

@@ -113,7 +113,7 @@
 	            }
 	        };
 	        $.ajax({
-	        	url:"/dispatch.action",
+	        	url:"/api.action",
 	            type:"GET",
 	            dataType:"json",
 	            data:{
@@ -358,7 +358,7 @@
             }
         };
         $.ajax({
-            url:"/dispatch.action",
+            url:"/api.action",
             data:{
                 webJson: JSON.stringify(param)
             },
@@ -411,7 +411,7 @@
             };
 
             $.ajax({
-                url : "dispatch.action",
+                url : "api.action",
                 type: "GET",
                 dataType: "json",
                 data:{
@@ -425,7 +425,7 @@
                             param.type = "iq_group_roster_get";
                             param.body.ver = 1;
                             $.ajax({
-                                url:"dispatch.action",
+                                url:"api.action",
                                 data:{
                                     webJson:JSON.stringify(param)
                                 } ,

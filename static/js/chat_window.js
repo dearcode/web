@@ -50,11 +50,14 @@ define("chat_window",["util"],function(util){
 			this.aid=util.cookie('aid');
 			this.uid=util.cookie('uid');
 			this.dom=$(".panel-view");
+
 			if(util.isNumber(conver)){
-				this.checkGroupData();
-			}else{
 				this.checkSingleData();
+			}else{
+				this.checkGroupData();
 			}
+
+
 			// 恢复切换窗口之前的输入数据
 			for(var i=0; i<textInVal.length; i++){
 				if(textInVal[i].key == this.conver){
@@ -466,7 +469,6 @@ define("chat_window",["util"],function(util){
                     }
 
                     if(msgarr[i].sender==selfinfo.uid || msgarr[i].from == selfinfo.uid){
-//						var $textc=msgWindow.buildClientContent(msgarr[i]);
                         var $textc = msgWindow.buildMsgHtml(msgarr[i], false)
                         var c = "";
                         if(msgarr[i].message.content == "#A_振动"){
@@ -534,7 +536,7 @@ define("chat_window",["util"],function(util){
 
                                 }, false);
                             }
-//								var $texts=msgWindow.buildServiceContent();
+
                             var $texts = this.buildMsgHtml(msgarr[i], false);
                             var c = "";
                             if(!userinfo) {
@@ -579,7 +581,6 @@ define("chat_window",["util"],function(util){
                             });
                             $("#chat_load_more").after($texts);
                         }else{
-//							$texts=msgWindow.buildServiceContent();
                             var $texts = this.buildMsgHtml(msgarr[i], false);
 							var c = "";
 							if(msgarr[i].type == "message_file" || msgarr[i].message.ptype == "message_file" || !msgarr[i].message.content){
@@ -732,11 +733,7 @@ define("chat_window",["util"],function(util){
                     timestamp = '<div class="time-stamp"><span>'+time+'</span></div>';
                 }
             }
-//            if(append) {
-//                html = timestamp + html;
-//            } else {
-//                html = html + timestamp;
-//            }
+
             html = timestamp + html;
             return $(html);
         },
