@@ -265,22 +265,21 @@ var get_self_info = function(suc, error) {
 	var defaults = {
 		"aid" : cookie("aid"),
 		"uid" : cookie("uid"),
-		"ptype" : "getSelfInfo",
-		"pname" : cookie("uid")
+		"ptype" : "getSelfInfo"
 	};
 	data_ajax(suc, error, defaults, 1);
 }
 
 /* 查询用户信息 */
-var get_user_info = function(uid, suc, error, async) {
+var get_user_info = function(to, suc, error, async) {
 	var defaults = {
 		"aid" : cookie("aid"),
 		"uid" : cookie("uid"),
-		"ptype" : "iep_erp_get",
-		"pname" : uid,
-		"url" : "/api"
+		"from" : cookie("uid"),
+		"to" : to,
+		"ptype" : "getUserInfo"
 	};
-	data_ajax(suc, error, defaults, 1/*, false*/);
+	data_ajax(suc, error, defaults, 1);
 }
 
 /* 批量获取用户信息 */

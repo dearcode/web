@@ -88,8 +88,8 @@ define(function(require, exports, module){
         settings: {
           opacity      : 0.2,
           overlay      : true,
-          loadingImage : '/img/loading.gif',
-          closeImage   : '/img/logo.png',
+          loadingImage : '/static/img/loading.gif',
+          closeImage   : '/static/img/logo.png',
           imageTypes   : [ 'png', 'jpg', 'jpeg', 'gif' ],
           faceboxHtml  : '\
         <div id="facebox" style="display:none;"> \

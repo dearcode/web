@@ -2,7 +2,7 @@ define(function(require, exports, module){
   require("facebox");
 	var avatarUrl = "",x=0,y=0,width=0,height=0,imgWidth = 0, imgHeight = 0, initSrc = "",
 		util = require("util");
-	
+
 	function buildView(){
 		var html = [ '<div id="editAvatar" style="display: none">',
 		             '<div class="edit-avatar">',
@@ -29,14 +29,14 @@ define(function(require, exports, module){
 		if($("#editAvatar").length == 0){
 			$("body").append(html.join(""));
 		}
-		
+
 		$("#user-avatar a").facebox();
-		
+
 		$(document).bind("afterClose.facebox", function(){
 			$(".view-avatar div").remove();
 			$(".view-avatar img").removeAttr("style");
 		});
-		
+
 		$(document).bind("afterReveal.facebox", function(){
 			var img = $("#user-avatar a img").attr("src");
 			$(".view-avatar img").attr("src", img);
@@ -51,9 +51,9 @@ define(function(require, exports, module){
 				var h = $(".upload-avatar:visible").height()*imgWidth/imgHeight;
 				$(".upload-avatar:visible img").height(h);
 			};
-			
+
 //			canvas = $(".canvas:visible").get(0);
-			
+
 //			if(canvas && canvas.getContext){
 //				$(".upload-avatar img").hide();
 //				canvas.width = 130;
@@ -78,7 +78,7 @@ define(function(require, exports, module){
 			        boundy = bounds[1];
 			        jcrop_api = this;
 			});
-			
+
 			//更新预览图
 			function updateView(coords){
 //				console.log(obj);
@@ -114,8 +114,8 @@ define(function(require, exports, module){
 			events();
 		});
 	}
-	
-	
+
+
 	function events(){
 		$(".aub-wrap:visible input").upload({
 			onload:function(file, resp){
@@ -123,7 +123,7 @@ define(function(require, exports, module){
 					var json = resp;
 					avatarUrl = json.url;
 				}catch(e){
-					
+
 				}
 			}
 		});
@@ -170,12 +170,12 @@ define(function(require, exports, module){
 			}
 		});
 		//将图片上传到服务端
-		
+
 		$(".avatar-cancel").click(function(){
 			avatarUrl = "";
 			$(".close").click();
 		});
-		
+
 		$(".avatar-save").click(function(){
 			var req = {} ;
 			req.ptype = "iep_avatar_set";
@@ -216,7 +216,7 @@ define(function(require, exports, module){
 					}
 				}
 			});
-			
+
 //			if(canvas){
 //				//console.log(canvas.toDataURL());
 //				$("#user-avatar img").attr("src", canvas.toDataURL());
@@ -227,7 +227,7 @@ define(function(require, exports, module){
 //						$(this).width($("#user-avatar").width());
 //					}
 //					$(this).css("borderRadius","5px");
-//					
+//
 //				});
 //			}
 			$(".avatar-cancel").click();
@@ -241,7 +241,7 @@ define(function(require, exports, module){
 	$(".upload-avatar:visible img").css({
 		position:"relative"
 	});*/
-	
+
 	function init(){
 		var obj = DDstorage.get(util.cookie("uid"));
 		if(obj && obj.avatar){
@@ -253,9 +253,9 @@ define(function(require, exports, module){
 			//alert("用户资料未获取到");
 		}
 	}
-	
-	
+
+
 	buildView();
 	init();
-	
+
 });

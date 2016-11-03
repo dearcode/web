@@ -22,4 +22,8 @@ const (
 	ErrType = 5006
 	// ErrUnmarshalData
 	ErrUnmarshalData = 5007
+	// ErrMarshalData
+	ErrMarshalData = 5008
+	// ErrParseData
+	ErrParseData = 5009
 )

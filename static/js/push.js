@@ -1,9 +1,9 @@
 define(function(require, exports, module){
 	var util = require("util"),
-	    screenshot = require("screenshot"),
-	    team_msg = require("team_msg"),
+	    //screenshot = require("screenshot"),
+	    //team_msg = require("team_msg"),
 	    notification = require("notification"),
-	    share = require("share"),
+	    //share = require("share"),
 
 	    stop = false,
 		errorTimes = 0,
@@ -124,10 +124,11 @@ define(function(require, exports, module){
 			return;
 		}
 		//截屏消息
-		if(msgBean.type == "screenshot"){
+		/*if(msgBean.type == "screenshot"){
 			screenshot.screenshot(msgBean);
 			return;
 		}
+		*/
 		//在线聊天消息
 		if(msgBean.type == "message_chat"){
             if(beforeParse(msgBean)){
@@ -165,30 +166,32 @@ define(function(require, exports, module){
 			return;
 		}
 		//群设置消息
-		if(msgBean.type == "iq_group_set"){
+		/*if(msgBean.type == "iq_group_set"){
 			team_msg.parse(msgBean);
 			return;
 		}
+		*/
 		//群联系人信息改变
-		if(msgBean.type == "iq_roster_item_set"){
+		/*if(msgBean.type == "iq_roster_item_set"){
 			team_msg.parse(msgBean);
 			return;
 		}
+		*/
 		//群成员改变消息
-		if(msgBean.type == "iq_roster_item_delete"){
+		/*if(msgBean.type == "iq_roster_item_delete"){
 			team_msg.parse(msgBean);
 			return;
-		}
+		}*/
 		//踢出群
-		if(msgBean.type == "presence_group_kick"){
+		/*if(msgBean.type == "presence_group_kick"){
 			team_msg.parse(msgBean);
 			return;
-		}
+		}*/
 		//邀请加入群
-		if(msgBean.type == "message_group_invite"){
+		/*if(msgBean.type == "message_group_invite"){
 			team_msg.parse(msgBean);
 			return;
-		}
+		}*/
 
 		// 用户资料更新
 		if(msgBean.type == "message_user_updated"){
@@ -723,9 +726,9 @@ define(function(require, exports, module){
 	            $(".msg-wrap .message-img").parent().lightBox();
 	        }
             //文件消息回执
-            if(confirm) {
+            /*if(confirm) {
                 share.fileAck();
-            }
+            }*/
 
             //事件绑定
             jdom.find(".msg-avatar").find("img").attr("data-uid",userInfo.uid).css("cursor","pointer");
@@ -1073,7 +1076,7 @@ define(function(require, exports, module){
         if(msg.type != "message_notice") {
             return info;
         }
-        info.avatar = msg.body.icon || "http://static.360buyimg.com/timline/img/notice.png";
+        info.avatar = msg.body.icon || "/static/img/notice.png";
         info.uid = msg.body.source;
         info.realname = msg.body.source;
         info.type = "system";
@@ -1113,10 +1116,10 @@ define(function(require, exports, module){
         var voice, html;
         if(msgBean.from == util.cookie("uid")) {
             voice = "<span class='voice-msg voice-msg-self' data-url='"+msgBean.body.content+"'></span>";
-            html = "<div><table class='voice-status voice-status-self'><tr><td class='unread'><img src='http://static.360buyimg.com/timline/img/sound_2.png' /></td></tr><tr><td>"+msgBean.body.duration+"'</td></tr></table></div>";
+            html = "<div><table class='voice-status voice-status-self'><tr><td class='unread'><img src='/static/img/sound_2.png' /></td></tr><tr><td>"+msgBean.body.duration+"'</td></tr></table></div>";
         } else {
             voice = "<span class='voice-msg' data-url='"+msgBean.body.content+"'></span>";
-            html = "<div><table class='voice-status'><tr><td class='unread'><img src='http://static.360buyimg.com/timline/img/sound_2.png' /></td></tr><tr><td>"+msgBean.body.duration+"'</td></tr></table></div>";
+            html = "<div><table class='voice-status'><tr><td class='unread'><img src='/static/img/sound_2.png' /></td></tr><tr><td>"+msgBean.body.duration+"'</td></tr></table></div>";
         }
         jdom.not(".time-stamp").append(html).find(".msg-cont").html(voice).css("width", width+"px");
         if(read) {
@@ -1149,7 +1152,7 @@ define(function(require, exports, module){
         });
         $("a[download]").unbind("click").bind("click", function(){
             var href = $(this).attr("href"), download = $(this).attr("download");
-            if(href.indexOf("http://storage.jd.com") == 0 || href.indexOf("http://s.timline.jd.com") == 0) {
+            if(href.indexOf("http://storage.dearcode.net") == 0 || href.indexOf("http://s.dearcode.net") == 0) {
                 download = encodeURI(encodeURI(download));
                 href = "/file/download?url="+encodeURIComponent(href)+"&fileName="+download;
                 $(this).attr("href",href)
@@ -1157,7 +1160,7 @@ define(function(require, exports, module){
         });
 
         $(".msg-avatar img").unbind("error").bind("error", function(){
-            $(this).attr("src", "http://static.360buyimg.com/timline/img/img-avatar.png");
+            $(this).attr("src", "/static/img/img-avatar.png");
         });
         $(".voice-msg").unbind("click").bind("click", function(){
             var url = $(this).attr("data-url");

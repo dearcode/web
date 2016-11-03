@@ -354,7 +354,6 @@
     </div><!--footer-->
 
 
-    <script type="text/javascript" src="/static/lib/jquery/jquery-1.11.1.min.js"></script>
     <script type="text/javascript" src="/static/js/jquery.treetable.js"></script>
     <script type="text/javascript" src="/static/js/json2.js" charset="utf-8"></script>
     <script type="text/javascript" src="/static/js/jquery.lightbox-0.5.js" charset="utf-8"></script>

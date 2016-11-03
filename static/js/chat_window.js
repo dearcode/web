@@ -80,7 +80,7 @@ define("chat_window",["util"],function(util){
 					text_in.focus();
 				}
 			}
-            var poll = require("poll");
+            var poll = require(["poll"]);
             poll.msgCounter();
 
 			//滚动条滚动到底部
@@ -100,7 +100,7 @@ define("chat_window",["util"],function(util){
 			msgWindow.dom.attr("kind",msgWindow.kind);
 			$(".panel-msg").find(".hd").removeClass("group-chat");
 			//修改聊天窗口上显示undefined的问题
-			var realname = userinfo.realname, position=userinfo.position;
+			var realname = userinfo.NickName, position=userinfo.Position;
 			if(!realname){
 				realname = util.recentContactDom(this.conver).find(".title").text();
 			}
@@ -114,12 +114,12 @@ define("chat_window",["util"],function(util){
 			if(!position){
 				position = "";
 			}
-            if(!userinfo.realname){
-                userinfo.uid = this.conver;
-                userinfo.realname = this.conver;
+            if(!userinfo.NickName){
+                userinfo.ID = this.conver;
+                userinfo.NickName = this.conver;
                 get_user_info(this.conver, function(json){
-                     if(json.code == 1){
-                         DDstorage.set(json.body.uid, json.body);
+                     if(json || json.ID){
+                         DDstorage.set(json.ID, json);
                      }
                 });
             }
@@ -181,10 +181,10 @@ define("chat_window",["util"],function(util){
 		},
 		checkSingleData:function(){
 			var userinfo=DDstorage.get(this.conver);
-			if(!userinfo || !userinfo.uid){
+			if(!userinfo || !userinfo.ID){
 				get_user_info(msgWindow.conver,function(result){
-					if(result.body && result.body.uid){
-						DDstorage.set(msgWindow.conver,result.body);
+					if(result && result.ID){
+						DDstorage.set(msgWindow.conver, result);
 					}
 					msgWindow.showSingleMsg();
 				});
@@ -229,7 +229,7 @@ define("chat_window",["util"],function(util){
 			}
 		},
 		showUnreadMsg:function(userinfo,unreadmsgs){
-            var poll = require("poll");
+            var poll = require(["poll"]);
             //对未读消息按mid小到大排序
             var mids = [];
             var unreadmsg = {};

@@ -39,7 +39,7 @@ define(function(require, exports, modules){
         info.find(".idcard-orgname").html("部门：<span>"+(userinfo.orgFullName||"")+"</span>");
         info.find(".btn-wrap").attr("data", userinfo.uid);
         info.find(".idcard-img").bind("error", function() {
-            $(this).attr("src", "http://static.360buyimg.com/timline/img/img-avatar.png");
+            $(this).attr("src", "/static/img/img-avatar.png");
         });
         //自己的名片不显示操作按钮
         if(uid == userinfo.uid){
@@ -47,7 +47,7 @@ define(function(require, exports, modules){
             jQuery.facebox(info.show());
             return;
         }
-        info.find(".idcard-orgname").append("<img class='search-dept' style='float:none;width:44px;height:22px;vertical-align: middle;' title='搜索同部门联系人' src='http://static.360buyimg.com/timline/img/search.png'>");
+        info.find(".idcard-orgname").append("<img class='search-dept' style='float:none;width:44px;height:22px;vertical-align: middle;' title='搜索同部门联系人' src='/static/img/search.png'>");
 
         var dom = info.find(".btn-wrap a[rel='del']").hide();
         inContact(userinfo.uid, function(id){
@@ -196,7 +196,7 @@ define(function(require, exports, modules){
                                      status = resp[0].status.presence
                                   }
                                   online = status && status != "off";
-                                  var img = "http://static.360buyimg.com/timline/img/img-avatar.png";
+                                  var img = "/static/img/img-avatar.png";
                                   if(userinfo.avatar){
                                       img = userinfo.avatar;
                                   }

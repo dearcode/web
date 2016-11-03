@@ -6,8 +6,8 @@ require.config({
 		jcrop : "./jquery.Jcrop.min",
 		avatar : "./avatar",
 		notification : "./notification",
-		poll:"./push",
 		team_msg : "./team-msg",
+		poll: "./push",
 		visiting_card:"./visiting-card"
 	},
 	waitSeconds:15
