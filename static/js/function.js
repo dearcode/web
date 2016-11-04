@@ -25,7 +25,7 @@ function checkResult(data) {
             result = "用户名长度错误";
             break;
         case 1010:
-         	result = "用户密码格式错误";
+            result = "用户密码格式错误";
             break;
         case 1011:
             result = "用户密码长度错误";

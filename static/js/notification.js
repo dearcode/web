@@ -1,170 +1,178 @@
-﻿/**
+﻿
+/**
  * 桌面通知
  */
-define(function(require, exports, module){
+define(function(require, exports, module) {
 	var
-	    webTitle = document.title,
-	    timer = null,
-	    windowstatus = "",
-	    util = require("util"),
-	    ntimer = null,
-	    support = window.webkitNotifications;
+		webTitle = document.title,
+		timer = null,
+		windowstatus = "",
+		util = require("util"),
+		ntimer = null,
+		support = window.webkitNotifications;
 
 
 
-	function notify(icon,title, content, events, key){
-		if(util.cookie("isOpenDesk") == "0"){
+	function notify(icon, title, content, events, key) {
+		if (util.cookie("isOpenDesk") == "0") {
 			return;
 		}
 		events = events || {};
-		if(support){
-			if(support.checkPermission() == 0){
-				if(!content){
+		if (support) {
+			if (support.checkPermission() == 0) {
+				if (!content) {
 					return;
 				}
 
-				if(ntimer){
+				if (ntimer) {
 					clearTimeout(ntimer);
 				}
-				var notice = support.createNotification(icon ||"../img/img-avatar.png", title, content);
+				var notice = support.createNotification(icon || "../img/img-avatar.png",
+					title, content);
 
-				if(key){
+				if (key) {
 					notice.replaceId = key;
-				}else{
+				} else {
 					notice.replaceId = "edd.dearcode.net";
 				}
-				notice.onshow = function(){
-					if(events.onshow){
+				notice.onshow = function() {
+					if (events.onshow) {
 						events.onshow(notice);
 					}
 				};
-				notice.onclose = function(){
-					if(events.onclose){
+				notice.onclose = function() {
+					if (events.onclose) {
 						events.onclose();
 					}
 				};
-				notice.onclick = function(){
-					if(events.onclick){
+				notice.onclick = function() {
+					if (events.onclick) {
 						events.onclick(notice);
 					}
 					notice.cancel();
 				};
 
 				notice.show();
-                var ttl = parseInt(util.cookie("cttl"));
-                if(isNaN(ttl)){
-                    ttl = 10000;
-                }
-                if(ttl <= 10000) {
-                    ntimer = setTimeout(function(){
-                        if(notice) {
-                            notice.cancel();
-                        }
-                    }, ttl);
-                }
+				var ttl = parseInt(util.cookie("cttl"));
+				if (isNaN(ttl)) {
+					ttl = 10000;
+				}
+				if (ttl <= 10000) {
+					ntimer = setTimeout(function() {
+						if (notice) {
+							notice.cancel();
+						}
+					}, ttl);
+				}
 				return notice;
-			}else{
+			} else {
 				support.requestPermission(notify);
 			}
-		}else if(window.Notification){
-			if(Notification.permission == "granted"){
-				if(ntimer){
+		} else if (window.Notification) {
+			if (Notification.permission == "granted") {
+				if (ntimer) {
 					clearTimeout(ntimer);
 				}
-				var notice = new Notification(title, {body:content,icon:icon||"./img/img-avatar.png", tag:key ||"ee.dearcode.net"});
-				if(events){
+				var notice = new Notification(title, {
+					body: content,
+					icon: icon || "./img/img-avatar.png",
+					tag: key || "ee.dearcode.net"
+				});
+				if (events) {
 					notice.onshow = onshow;
 					notice.onshow = events.onshow;
 					notice.onclose = events.onclose;
 					notice.onerror = events.onerror;
 				}
-				notice.onclick = function(){
-					if(events.onclick){
+				notice.onclick = function() {
+					if (events.onclick) {
 						events.onclick(notice);
 					}
 					notice.close();
 				};
-                var ttl = parseInt(util.cookie("cttl"));
-                if(isNaN(ttl)){
-                    ttl = 10000;
-                }
-                if(ttl <= 10000) {
-                    ntimer = setTimeout(function(){
-                        if(notice) {
-                            notice.close();
-                        }
-                    }, ttl);
-                }
-                return notice;
+				var ttl = parseInt(util.cookie("cttl"));
+				if (isNaN(ttl)) {
+					ttl = 10000;
+				}
+				if (ttl <= 10000) {
+					ntimer = setTimeout(function() {
+						if (notice) {
+							notice.close();
+						}
+					}, ttl);
+				}
+				return notice;
 			}
 		}
 	}
 
-	function create(title, content, events){
-		if(!content){
+	function create(title, content, events) {
+		if (!content) {
 			return;
 		}
 		//不支持或者没有权限
-		if($("#web-notice").length > 0){
+		if ($("#web-notice").length > 0) {
 			$("#web-notice").remove();
 		}
 		var html = build(title, content);
-		if(events && events.onshow){
+		if (events && events.onshow) {
 			events.onshow.call();
 		}
 		$("body").append(html);
-		$("#web-notice-close").click(function(){
-			if(events && events.onclose){
+		$("#web-notice-close").click(function() {
+			if (events && events.onclose) {
 				events.onclick.call();
 			}
 			document.title = webTitle;
-			if(timer){
+			if (timer) {
 				clearInterval(timer);
 			}
 			$("#web-notice").remove();
 			return false;
 		});
-		if(events && events.onclick){
+		if (events && events.onclick) {
 			$("#web-notice-content").click(events.onclick);
 		}
-		if(timer){
+		if (timer) {
 			clearInterval(timer);
 		}
-		timer = setInterval(function(){
-			if(document.title != webTitle){
+		timer = setInterval(function() {
+			if (document.title != webTitle) {
 				document.title = webTitle;
-			}else{
+			} else {
 				document.title = "\u3010\u60a8\u6709\u65b0\u7684\u6d88\u606f\u3011";
 			}
 		}, 500);
 	}
 
-	function build(title, content){
-		var html = "<div id='web-notice' class='web-notice'>"+
-		"<h4 id='web-notice-title' class='web-notice-title'>"+title+"<span id='web-notice-close' class='web-notice-close'>\u00d7</span></h4>";
-		html += "<div id='web-notice-content' class='web-notice-content'>"+content+"</div></div>";
+	function build(title, content) {
+		var html = "<div id='web-notice' class='web-notice'>" +
+			"<h4 id='web-notice-title' class='web-notice-title'>" + title +
+			"<span id='web-notice-close' class='web-notice-close'>\u00d7</span></h4>";
+		html += "<div id='web-notice-content' class='web-notice-content'>" +
+			content + "</div></div>";
 		return html;
 	}
 
-	function urlNotify(url, events){
+	function urlNotify(url, events) {
 		var notice = null;
-		if(!url){
+		if (!url) {
 			return;
 		}
-		if(util.cookie("isOpenDesk") == "0"){
+		if (util.cookie("isOpenDesk") == "0") {
 			return;
 		}
-		if(support){
-			if(support.checkPermission() == 0){
+		if (support) {
+			if (support.checkPermission() == 0) {
 				notice = support.createHTMLNotification(url);
-				notice.replaceId="ent.url.notification";
-				if(events && typeof events == "object"){
+				notice.replaceId = "ent.url.notification";
+				if (events && typeof events == "object") {
 					notice.onshow = events.onshow;
 					notice.onclose = events.onclose;
 					notice.onerror = events.onerror;
 				}
-				notice.onclick = function(){
-					if(events.onclick){
+				notice.onclick = function() {
+					if (events.onclick) {
 						events.onclick();
 					}
 					notice.cancel();
@@ -172,30 +180,32 @@ define(function(require, exports, module){
 				$("#web-notice-url").remove();
 				notice.show();
 				return;
-			}else{
+			} else {
 				support.requestPermission(urlNotify);
 			}
 		}
 	}
 
-	function createIframe(url, events){
-		var html = "<div id='web-notice-url' class='web-notice'><h4 id='web-notice-url-title' class='web-notice-title'><span id='web-notice-url-close' class='web-notice-close'>\u00d7</span></h4><div id='web-notice-url-content'><iframe src='"+url+"' class='web-notice-iframe'></iframe></div></div>";
-		if($("#web-notice-url").length > 0){
+	function createIframe(url, events) {
+		var html =
+			"<div id='web-notice-url' class='web-notice'><h4 id='web-notice-url-title' class='web-notice-title'><span id='web-notice-url-close' class='web-notice-close'>\u00d7</span></h4><div id='web-notice-url-content'><iframe src='" +
+			url + "' class='web-notice-iframe'></iframe></div></div>";
+		if ($("#web-notice-url").length > 0) {
 			$("#web-notice-url").remove();
 		}
-		if(events && events.onshow){
+		if (events && events.onshow) {
 			events.onshow.call();
 		}
 		$("body").append(html);
-		$("#web-notice-url-close").click(function(){
-			if(events && events.onclose){
+		$("#web-notice-url-close").click(function() {
+			if (events && events.onclose) {
 				events.onclose();
 			}
 			$("#web-notice-url").remove();
 			return false;
 		});
-		$("#web-notice-url-content").click(function(){
-			if(events && events.onclick){
+		$("#web-notice-url-content").click(function() {
+			if (events && events.onclick) {
 				events.onclick();
 			}
 			return false;
@@ -203,92 +213,92 @@ define(function(require, exports, module){
 	}
 
 
-	function flashTitle(){
-		if(timer){
+	function flashTitle() {
+		if (timer) {
 			clearInterval(timer);
 		}
-		timer = setInterval(function(){
-			if(document.title != webTitle){
+		timer = setInterval(function() {
+			if (document.title != webTitle) {
 				document.title = webTitle;
-			}else{
+			} else {
 				document.title = "\u3010\u60a8\u6709\u65b0\u7684\u6d88\u606f\u3011";
 			}
 		}, 500);
-		$("body").click(function(){
-			if(timer){
+		$("body").click(function() {
+			if (timer) {
 				clearInterval(timer);
 			}
 			document.title = webTitle;
-            var conver = $(".panel-view").attr("conver");
-            if(conver){
-                var notice = Timline.getNotification(conver);
-                if(notice){
-                    notice.close();
-                }
-            }
+			var conver = $(".panel-view").attr("conver");
+			if (conver) {
+				var notice = Timline.getNotification(conver);
+				if (notice) {
+					notice.close();
+				}
+			}
 		});
 	}
 
-	function requestPermission(callback){
-		if(support){
-			if(support.checkPermission() != 0){
+	function requestPermission(callback) {
+		if (support) {
+			if (support.checkPermission() != 0) {
 				support.requestPermission(callback);
 			}
 		}
 		//firefox
-		if(window.Notification){
-			if(Notification.permission === "default"){
+		if (window.Notification) {
+			if (Notification.permission === "default") {
 				Notification.requestPermission(callback);
-		    }
+			}
 		}
 	}
 
-	function events(){
-		$("#user_dest_set").click(function(){
+	function events() {
+		$("#user_dest_set").click(function() {
 			requestPermission();
 		});
-		$(window).blur(function(){
+		$(window).blur(function() {
 			windowstatus = "blur";
-		}).focus(function(){
+		}).focus(function() {
 			windowstatus = "focus";
 			$("body").click();
 		});;
 	}
 
-  //获取简单的消息
-  function getSimpleMsg(msg) {
-    try{
-      var tmp = $("<div></div>").html(msg);
-      if(tmp.find("img").length > 0){
-        msg = "[图片]"+tmp.text();
-      }
-      if(tmp.find("a[rel='send-file']").length > 0){
-        msg = "[文件]";
-      }
-      if($.fn.jdExpression.replaceName(msg) != msg){
-        tmp = $("<div></div>").html($.fn.jdExpression.replaceName(msg));
-        msg = "[表情]"+tmp.text();
-      }
-      if(msg == "#A_振动"){
-        msg = "[震屏]";
-      }
-      if(msg.length > 80){
-        msg = msg.substring(0, 80)+"...";
-      }
-    }catch(e){
+	//获取简单的消息
+	function getSimpleMsg(msg) {
+		try {
+			var tmp = $("<div></div>").html(msg);
+			if (tmp.find("img").length > 0) {
+				msg = "[图片]" + tmp.text();
+			}
+			if (tmp.find("a[rel='send-file']").length > 0) {
+				msg = "[文件]";
+			}
+			if ($.fn.jdExpression.replaceName(msg) != msg) {
+				tmp = $("<div></div>").html($.fn.jdExpression.replaceName(msg));
+				msg = "[表情]" + tmp.text();
+			}
+			if (msg == "#A_振动") {
+				msg = "[震屏]";
+			}
+			if (msg.length > 80) {
+				msg = msg.substring(0, 80) + "...";
+			}
+		} catch (e) {
 
-    }
-    return msg;
-  }
+		}
+		return msg;
+	}
 
-	function noticeMsg(icon,from, title, msg){
-        var notice;
-		if(windowstatus == "blur"){
-            msg = getSimpleMsg(msg);
-			notice = notify(icon,  title, msg, {
-				onclick:function(notice){
+	function noticeMsg(icon, from, title, msg) {
+		var notice;
+		if (windowstatus == "blur") {
+			msg = getSimpleMsg(msg);
+			notice = notify(icon, title, msg, {
+				onclick: function(notice) {
 					window.focus();
-					if(!notice){
+					if (!notice) {
 						return;
 					}
 					var conver = notice.replaceId || notice.tag;
@@ -296,40 +306,45 @@ define(function(require, exports, module){
 					util.recentContactDom(conver).click();
 					$("#text_in").focus();
 				}
-			},from);
-            return notice;
+			}, from);
+			return notice;
 		}
 	}
 
-	function hasPermission(){
-		if(support){
+	function hasPermission() {
+		if (support) {
 			return support.checkPermission() == 0;
-		}else if(window.Notification){
+		} else if (window.Notification) {
 			return Notification.permission == "granted";
 		}
 		return false;
 	}
 
-	function isSupported(){
+	function isSupported() {
 		return support || window.Notification;
 	}
 
-    function getWinStatus(){
-        return windowstatus;
-    }
+	function getWinStatus() {
+		return windowstatus;
+	}
 
-	function systemMsg(msg){
+	function systemMsg(msg) {
 		var content = msg.body.content;
-		if(content.length > 80){
-			content = content.substring(0, 80)+"...";
+		if (content.length > 80) {
+			content = content.substring(0, 80) + "...";
 		}
-		if(hasPermission()){
-			notice(msg.body.pic, msg.body.title, content,msg.body.mid, function(){
-				var title = "<span style='vertical-align:middle'>系统消息&nbsp;-&nbsp;"+msg.body.title+"</span>", content;
-				if(msg.body.pic){
-					content = "<div style='text-align:left;'><img style='float:left;max-width:300px;max-height:240px; margin-right:20px;' src='"+msg.body.pic+"'>"+msg.body.content+"</div>";
-				}else{
-					content = "<div style='text-align:left;'>"+msg.body.content+"</div>";
+		if (hasPermission()) {
+			notice(msg.body.pic, msg.body.title, content, msg.body.mid, function() {
+				var title = "<span style='vertical-align:middle'>系统消息&nbsp;-&nbsp;" +
+					msg.body.title + "</span>",
+					content;
+				if (msg.body.pic) {
+					content =
+						"<div style='text-align:left;'><img style='float:left;max-width:300px;max-height:240px; margin-right:20px;' src='" +
+						msg.body.pic + "'>" + msg.body.content + "</div>";
+				} else {
+					content = "<div style='text-align:left;'>" + msg.body.content +
+						"</div>";
 				}
 
 				window.focus();
@@ -338,19 +353,24 @@ define(function(require, exports, module){
 		}
 	}
 
-	function notice(icon, title, content, mid,  onclick){
+	function notice(icon, title, content, mid, onclick) {
 		var notice;
-		if(window.webkitNotifications){
-			notice = window.webkitNotifications.createNotification(icon ||"../img/img-avatar.png", title, content);
-			notice.onclick = function(){
+		if (window.webkitNotifications) {
+			notice = window.webkitNotifications.createNotification(icon ||
+				"../img/img-avatar.png", title, content);
+			notice.onclick = function() {
 				onclick(mid);
 				notice.cancel();
 			};
 			notice.replaceId = mid;
 			notice.show();
-		}else if(window.Notification){
-			notice = new Notification(title, {body:content,icon:icon||"../img/img-avatar.png", tag:mid ||"ee.dearcode.net"});
-			notice.onclick = function(){
+		} else if (window.Notification) {
+			notice = new Notification(title, {
+				body: content,
+				icon: icon || "../img/img-avatar.png",
+				tag: mid || "ee.dearcode.net"
+			});
+			notice.onclick = function() {
 				onclick(mid);
 				notice.close();
 			};
@@ -359,15 +379,15 @@ define(function(require, exports, module){
 
 	events();
 	return {
-		notify:notify,
-		urlNotify:urlNotify,
-		flashTitle:flashTitle,
+		notify: notify,
+		urlNotify: urlNotify,
+		flashTitle: flashTitle,
 		noticeMsg: noticeMsg,
 		hasPermission: hasPermission,
 		isSupported: isSupported,
-		requestPermission:requestPermission,
-		systemMsg : systemMsg,
-    getWindowStatus: getWinStatus,
-    getSimpleMsg: getSimpleMsg
+		requestPermission: requestPermission,
+		systemMsg: systemMsg,
+		getWindowStatus: getWinStatus,
+		getSimpleMsg: getSimpleMsg
 	};
 });

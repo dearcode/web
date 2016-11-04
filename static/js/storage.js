@@ -3,7 +3,7 @@ if (typeof window.DDstorage == 'undefined') {
 }
 
 DDstorage = {
-	set : function(key, data, forever) {
+	set: function(key, data, forever) {
 		if (typeof window.sessionStorage == 'object') {
 			try {
 				sessionStorage.setItem(key, JSON.stringify(data));
@@ -12,25 +12,25 @@ DDstorage = {
 			}
 		}
 
-        if(forever) {
-            if(typeof window.localStorage == "object") {
-                try{
-                    localStorage.setItem(key, JSON.stringify(data));
-                }catch(e) {
+		if (forever) {
+			if (typeof window.localStorage == "object") {
+				try {
+					localStorage.setItem(key, JSON.stringify(data));
+				} catch (e) {
 
-                }
-            }
-        }
+				}
+			}
+		}
 	},
-	get : function(key) {
+	get: function(key) {
 		if (typeof window.sessionStorage == 'object') {
-			try{
+			try {
 				var str = sessionStorage.getItem(key);
-                if(str == null) {
-                    str = localStorage.getItem(key);
-                }
-	            return JSON.parse(str);
-			}catch(e){
+				if (str == null) {
+					str = localStorage.getItem(key);
+				}
+				return JSON.parse(str);
+			} catch (e) {
 
 			}
 
@@ -38,10 +38,10 @@ DDstorage = {
 
 		return null;
 	},
-	remove : function(key) {
+	remove: function(key) {
 		if (typeof window.sessionStorage == 'object') {
 			sessionStorage.removeItem(key);
-            localStorage.removeItem(key)
+			localStorage.removeItem(key)
 		}
 	}
 };

@@ -139,14 +139,15 @@ if (typeof JSON !== 'object') {
 
 		Date.prototype.toJSON = function() {
 
-			return isFinite(this.valueOf()) ? this.getUTCFullYear() + '-' + f(this.getUTCMonth() + 1) + '-'
-					+ f(this.getUTCDate()) + 'T' + f(this.getUTCHours()) + ':' + f(this.getUTCMinutes()) + ':'
-					+ f(this.getUTCSeconds()) + 'Z' : null;
+			return isFinite(this.valueOf()) ? this.getUTCFullYear() + '-' + f(this.getUTCMonth() +
+				1) + '-' + f(this.getUTCDate()) + 'T' + f(this.getUTCHours()) + ':' + f(
+				this.getUTCMinutes()) + ':' + f(this.getUTCSeconds()) + 'Z' : null;
 		};
 
-		String.prototype.toJSON = Number.prototype.toJSON = Boolean.prototype.toJSON = function() {
-			return this.valueOf();
-		};
+		String.prototype.toJSON = Number.prototype.toJSON = Boolean.prototype.toJSON =
+			function() {
+				return this.valueOf();
+			};
 	}
 
 	var cx, escapable, gap, indent, meta, rep;
@@ -162,9 +163,10 @@ if (typeof JSON !== 'object') {
 
 		escapable.lastIndex = 0;
 		return escapable.test(string) ? '"' + string.replace(escapable, function(a) {
-					var c = meta[a];
-					return typeof c === 'string' ? c : '\\u' + ('0000' + a.charCodeAt(0).toString(16)).slice(-4);
-				}) + '"' : '"' + string + '"';
+			var c = meta[a];
+			return typeof c === 'string' ? c : '\\u' + ('0000' + a.charCodeAt(0).toString(
+				16)).slice(-4);
+		}) + '"' : '"' + string + '"';
 	}
 
 	function str(key, holder) {
@@ -172,9 +174,10 @@ if (typeof JSON !== 'object') {
 		// Produce a string from holder[key].
 
 		var i, // The loop counter.
-		k, // The member key.
-		v, // The member value.
-		length, mind = gap, partial, value = holder[key];
+			k, // The member key.
+			v, // The member value.
+			length, mind = gap,
+			partial, value = holder[key];
 
 		// If the value has a toJSON method, call it to obtain a replacement
 		// value.
@@ -193,18 +196,18 @@ if (typeof JSON !== 'object') {
 		// What happens next depends on the value's type.
 
 		switch (typeof value) {
-			case 'string' :
+			case 'string':
 				return quote(value);
 
-			case 'number' :
+			case 'number':
 
 				// JSON numbers must be finite. Encode non-finite numbers as
 				// null.
 
 				return isFinite(value) ? String(value) : 'null';
 
-			case 'boolean' :
-			case 'null' :
+			case 'boolean':
+			case 'null':
 
 				// If the value is a boolean or null, convert it to a string.
 				// Note:
@@ -218,7 +221,7 @@ if (typeof JSON !== 'object') {
 				// or an array or
 				// null.
 
-			case 'object' :
+			case 'object':
 
 				// Due to a specification blunder in ECMAScript, typeof null is
 				// 'object',
@@ -251,9 +254,8 @@ if (typeof JSON !== 'object') {
 					// and wrap them in
 					// brackets.
 
-					v = partial.length === 0 ? '[]' : gap
-							? '[\n' + gap + partial.join(',\n' + gap) + '\n' + mind + ']'
-							: '[' + partial.join(',') + ']';
+					v = partial.length === 0 ? '[]' : gap ? '[\n' + gap + partial.join(',\n' +
+						gap) + '\n' + mind + ']' : '[' + partial.join(',') + ']';
 					gap = mind;
 					return v;
 				}
@@ -289,9 +291,8 @@ if (typeof JSON !== 'object') {
 				// Join all of the member texts together, separated with commas,
 				// and wrap them in braces.
 
-				v = partial.length === 0 ? '{}' : gap
-						? '{\n' + gap + partial.join(',\n' + gap) + '\n' + mind + '}'
-						: '{' + partial.join(',') + '}';
+				v = partial.length === 0 ? '{}' : gap ? '{\n' + gap + partial.join(',\n' +
+					gap) + '\n' + mind + '}' : '{' + partial.join(',') + '}';
 				gap = mind;
 				return v;
 		}
@@ -300,15 +301,16 @@ if (typeof JSON !== 'object') {
 	// If the JSON object does not yet have a stringify method, give it one.
 
 	if (typeof JSON.stringify !== 'function') {
-		escapable = /[\\\"\x00-\x1f\x7f-\x9f\u00ad\u0600-\u0604\u070f\u17b4\u17b5\u200c-\u200f\u2028-\u202f\u2060-\u206f\ufeff\ufff0-\uffff]/g;
+		escapable =
+			/[\\\"\x00-\x1f\x7f-\x9f\u00ad\u0600-\u0604\u070f\u17b4\u17b5\u200c-\u200f\u2028-\u202f\u2060-\u206f\ufeff\ufff0-\uffff]/g;
 		meta = { // table of character substitutions
-			'\b' : '\\b',
-			'\t' : '\\t',
-			'\n' : '\\n',
-			'\f' : '\\f',
-			'\r' : '\\r',
-			'"' : '\\"',
-			'\\' : '\\\\'
+			'\b': '\\b',
+			'\t': '\\t',
+			'\n': '\\n',
+			'\f': '\\f',
+			'\r': '\\r',
+			'"': '\\"',
+			'\\': '\\\\'
 		};
 		JSON.stringify = function(value, replacer, space) {
 
@@ -346,8 +348,8 @@ if (typeof JSON !== 'object') {
 			// Otherwise, throw an error.
 
 			rep = replacer;
-			if (replacer && typeof replacer !== 'function'
-					&& (typeof replacer !== 'object' || typeof replacer.length !== 'number')) {
+			if (replacer && typeof replacer !== 'function' && (typeof replacer !==
+					'object' || typeof replacer.length !== 'number')) {
 				throw new Error('JSON.stringify');
 			}
 
@@ -355,15 +357,16 @@ if (typeof JSON !== 'object') {
 			// Return the result of stringifying the value.
 
 			return str('', {
-						'' : value
-					});
+				'': value
+			});
 		};
 	}
 
 	// If the JSON object does not yet have a parse method, give it one.
 
 	if (typeof JSON.parse !== 'function') {
-		cx = /[\u0000\u00ad\u0600-\u0604\u070f\u17b4\u17b5\u200c-\u200f\u2028-\u202f\u2060-\u206f\ufeff\ufff0-\uffff]/g;
+		cx =
+			/[\u0000\u00ad\u0600-\u0604\u070f\u17b4\u17b5\u200c-\u200f\u2028-\u202f\u2060-\u206f\ufeff\ufff0-\uffff]/g;
 		JSON.parse = function(text, reviver) {
 
 			// The parse method takes a text and an optional reviver function,
@@ -405,8 +408,8 @@ if (typeof JSON !== 'object') {
 			cx.lastIndex = 0;
 			if (cx.test(text)) {
 				text = text.replace(cx, function(a) {
-							return '\\u' + ('0000' + a.charCodeAt(0).toString(16)).slice(-4);
-						});
+					return '\\u' + ('0000' + a.charCodeAt(0).toString(16)).slice(-4);
+				});
 			}
 
 			// In the second stage, we run the text against regular expressions
@@ -432,8 +435,10 @@ if (typeof JSON !== 'object') {
 			// ',' or ':' or '{' or '}'. If that is so, then the text is safe
 			// for eval.
 
-			if (/^[\],:{}\s]*$/.test(text.replace(/\\(?:["\\\/bfnrt]|u[0-9a-fA-F]{4})/g, '@').replace(
-					/"[^"\\\n\r]*"|true|false|null|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?/g, ']').replace(
+			if (/^[\],:{}\s]*$/.test(text.replace(
+					/\\(?:["\\\/bfnrt]|u[0-9a-fA-F]{4})/g, '@').replace(
+					/"[^"\\\n\r]*"|true|false|null|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?/g, ']'
+				).replace(
 					/(?:^|:|,)(?:\s*\[)+/g, ''))) {
 
 				// In the third stage we use the eval function to compile the
@@ -452,8 +457,8 @@ if (typeof JSON !== 'object') {
 				// transformation.
 
 				return typeof reviver === 'function' ? walk({
-							'' : j
-						}, '') : j;
+					'': j
+				}, '') : j;
 			}
 
 			// If the text is not JSON parseable, then a SyntaxError is thrown.
