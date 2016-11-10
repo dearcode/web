@@ -11,6 +11,25 @@ import (
 )
 
 func (s *Server) Get() {
+	log.Infof("ApiAction GET")
+	aid := s.GetString("aid")
+	ptype := s.GetString("ptype")
+	uid, err := s.GetInt64("uid")
+	if err != nil {
+		log.Errorf("aid:%v ptype:%v err:%v", aid, ptype, err)
+		log.Errorf("maybe has type:%v", s.GetString("type"))
+		s.Response(util.Error(util.ErrUid, err.Error()))
+		return
+	}
+
+	log.Infof("ptype:%v aid:%v uid:%v", ptype, aid, uid)
+
+	switch ptype {
+	case "offLineMessageGet":
+		s.offlineMessageGet(aid, uid)
+	default:
+		log.Errorf("unknow get type:%v", ptype)
+	}
 
 }
 
@@ -46,8 +65,10 @@ func (s *Server) Post() {
 		s.getContactList(aid, uid)
 	case "messageChat":
 		s.messageChat(aid, uid)
+	case "offLineMessageGet":
+		s.offlineMessageGet(aid, uid)
 	default:
-		log.Errorf("unknow type:%v", ptype)
+		log.Errorf("unknow post type:%v", ptype)
 	}
 }
 
@@ -272,4 +293,30 @@ func (s *Server) messageChat(aid string, uid int64) {
 	log.Debugf("send success id:%v", id)
 
 	s.Response(string("{\"Code\":0, \"Msg\":\"send success\"}"))
+}
+
+func (s *Server) offlineMessageGet(aid string, uid int64) {
+	from, err := s.GetInt64("from")
+	if err != nil {
+		log.Errorf("err:%v", err)
+		s.Response(util.Error(util.ErrFrom, err.Error()))
+		return
+	}
+
+	c, err := getClient(uid)
+	if err != nil {
+		log.Errorf("%v", err)
+		s.Response(util.Error(util.ErrSessionTimeout, "session timeout"))
+		return
+	}
+
+	msgs, err := c.LoadMessage(uid)
+	if err != nil {
+		log.Errorf("error:%v", err)
+		s.Response(util.Error(util.ErrSendMsg, err.Error()))
+		return
+	}
+
+	log.Debugf("from:%v msgs:%v", from, msgs)
+	s.Response(msgs)
 }

@@ -220,9 +220,8 @@ define("chat", ["util"], function(util) {
 
 			}
 
-			/*var poll = require(["poll"]);
+			var poll = require(["poll"]);
 			poll.bindMsgEvent(1);
-			*/
 
 		},
 		buildClientContent: function() {

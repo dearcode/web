@@ -29,8 +29,8 @@ define(function(require, exports, module) {
 		}
 
 		$.ajax({
-			url: "/api.action?aid=" + aid + "&from=" + from +
-				"&type=iq_offline_message_get",
+			url: "/api.action?aid=" + aid + "uid=" + uid + "&from=" + from +
+				"&ptype=offlineMessageGet",
 			type: "GET",
 			timeout: 60000,
 			complete: function(result) {

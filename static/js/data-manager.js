@@ -403,13 +403,12 @@ var get_offline_message = function(suc, error) {
 var get_chat_history_all = function(to, suc, error) {
 	var defaults = {
 		"aid": cookie("aid"),
+		"uid": cookie("uid"),
 		"from": cookie("uid"),
-		"type": "iq_message_get",
-		"to": to,
-		"version": "1.0",
-		"body": {}
+		"ptype": "offLineMessageGet",
+		"to": to
 	};
-	data_ajax(suc, error, defaults);
+	data_ajax(suc, error, defaults, 1);
 };
 /* 指定获取单个历史消息 */
 var get_chat_history = function(to, mid, suc, error) {

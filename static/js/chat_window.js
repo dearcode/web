@@ -6,19 +6,20 @@ define("chat_window", ["util"], function(util) {
 	var textInVal = []; //保存输入框中的内容
 
 	var _getHistoryMessages = function(conver, type) {
-		if ($.isNumeric(conver)) {
+		/*if ($.isNumeric(conver)) {
 			get_group_history_all(conver, function(data) {
 				if (data.body) {
 					msgWindow.showHistoryMsg(data.body, conver, type);
 				}
 			});
 		} else {
-			get_chat_history_all(conver, function(data) {
+		*/
+		get_chat_history_all(conver, function(data) {
 				if (data.body) {
 					msgWindow.showHistoryMsg(data.body, conver, type);
 				}
 			})
-		}
+			/*}*/
 	};
 
 	var msgWindow = {
