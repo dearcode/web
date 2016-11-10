@@ -101,7 +101,7 @@ define("chat_window", ["util"], function(util) {
 			msgWindow.dom.attr("kind", msgWindow.kind);
 			$(".panel-msg").find(".hd").removeClass("group-chat");
 			//修改聊天窗口上显示undefined的问题
-			var realname = userinfo.NickName,
+			var realname = userinfo.NickName || userinfo.Name,
 				position = userinfo.Position;
 			if (!realname) {
 				realname = util.recentContactDom(this.conver).find(".title").text();

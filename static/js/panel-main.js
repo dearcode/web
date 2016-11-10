@@ -13,7 +13,7 @@
 				location.href = "/login";
 			}
 			var userele = $("#panel-user-info");
-			userele.find(".user-nick strong").text(data.NickName);
+			userele.find(".user-nick strong").text(data.NickName || data.Name);
 			if (!!data.Signature) {
 				if (data.Signature == undefined || data.Signature == "") {
 					$("#panel-user-signature").text("这家伙很懒，什么都没有留下");
@@ -255,7 +255,7 @@
 			str += '<ul class="rc-wrap">' + '<li class="rc-item" id="search-re-' +
 				groups[i].gid + '" conver="' + groups[i].gid + '" kind="' + groups[i].kind +
 				'"> ' + '  <div class="l">' +
-				'      <img src="../img/default-avatar.png" >' + '  </div> ' +
+				'      <img src="/static/img/default-avatar.png" >' + '  </div> ' +
 				'      <div class="m">' + '          <div class="nickname">' +
 				'              <span title="' + gname + '">' + gname + '</span> ' +
 				'          </div> '

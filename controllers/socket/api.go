@@ -22,6 +22,7 @@ func (s *Server) Post() {
 	uid, err := s.GetInt64("uid")
 	if err != nil {
 		log.Errorf("aid:%v ptype:%v err:%v", aid, ptype, err)
+		log.Errorf("maybe has type:%v", s.GetString("type"))
 		s.Response(util.Error(util.ErrUid, err.Error()))
 		return
 	}
@@ -43,6 +44,8 @@ func (s *Server) Post() {
 		s.setSignature(aid, uid)
 	case "getContactList":
 		s.getContactList(aid, uid)
+	case "messageChat":
+		s.messageChat(aid, uid)
 	default:
 		log.Errorf("unknow type:%v", ptype)
 	}
@@ -225,4 +228,48 @@ func (s *Server) getContactList(aid string, uid int64) {
 	log.Debugf("data:%v", string(d))
 
 	s.Response(string(d))
+}
+
+// messageChat 消息发送
+func (s *Server) messageChat(aid string, uid int64) {
+	from, err := s.GetInt64("from")
+	if err != nil {
+		log.Errorf("err:%v", err)
+		s.Response(util.Error(util.ErrFrom, err.Error()))
+		return
+	}
+
+	log.Debugf("from:%v", from)
+
+	to, err := s.GetInt64("to")
+	if err != nil {
+		log.Errorf("err:%v", err)
+		s.Response(util.Error(util.ErrTo, err.Error()))
+		return
+	}
+
+	msg := s.GetString("msg")
+	if msg == "" {
+		log.Errorf("message need not null")
+		s.Response(util.Error(util.ErrMsgNull, "message need not null"))
+		return
+	}
+
+	c, err := getClient(from)
+	if err != nil {
+		log.Errorf("%v", err)
+		s.Response(util.Error(util.ErrSessionTimeout, "session timeout"))
+		return
+	}
+
+	id, err := c.SendMessage(0, to, msg)
+	if err != nil {
+		log.Errorf("error:%v", err)
+		s.Response(util.Error(util.ErrSendMsg, err.Error()))
+		return
+	}
+
+	log.Debugf("send success id:%v", id)
+
+	s.Response(string("{\"Code\":0, \"Msg\":\"send success\"}"))
 }

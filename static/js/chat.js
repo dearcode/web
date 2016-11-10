@@ -26,7 +26,6 @@ define("chat", ["util"], function(util) {
 			if (this.kind == "customer") {
 				chat_single(this.msgId, this.conver, (util.filterMsg(inputText, false,
 					false)), function(data) {
-					//						chatAjax.showClientMsg(inputText,data);
 					chatAjax.redirectLogin(data);
 					chatAjax.afterSendMsg(inputText, data);
 
@@ -59,15 +58,19 @@ define("chat", ["util"], function(util) {
 					util.cookie("uid", "", {
 						expires: -1
 					});
+					util.cookie("aid", "", {
+						expires: -1
+					});
+
 					$("body").addClass("sendingMail");
-					window.location.href = "/passport/login.action";
+					window.location.href = "/login";
 				});
 				setTimeout(function() {
 					util.cookie("uid", "", {
 						expires: -1
 					});
 					$("body").addClass("sendingMail");
-					window.location.href = "/passport/login.action";
+					window.location.href = "/login";
 				}, 5000);
 			}
 		},
@@ -153,11 +156,12 @@ define("chat", ["util"], function(util) {
 				user = {};
 				user.uid = chatAjax.uid;
 				user.realname = chatAjax.uid;
-				user.avatar = "/img/default-avatar.png";
+				user.avatar = "/static/img/default-avatar.png";
 			}
-			$textc.find(".msg-avatar").find("p").html(user.realname || this.uid);
+			$textc.find(".msg-avatar").find("p").html(user.NickName || user.Name ||
+				this.uid);
 			$textc.find(".msg-avatar").find("img").attr("src", user.avatar ||
-				"/img/default-avatar.png").attr("data-uid", user.uid);
+				"/static/img/default-avatar.png").attr("data-uid", user.uid);
 			$textc.appendTo(".msg-wrap");
 
 			var isfind = false;
@@ -183,7 +187,7 @@ define("chat", ["util"], function(util) {
 						userinfo = {};
 						userinfo.uid = dom.attr("conver");
 						userinfo.realname = dom.attr("conver");
-						userinfo.avatar = "/img/default-avatar.png";
+						userinfo.avatar = "/static/img/default-avatar.png";
 					}
 					$textl.find(".nickname").text(userinfo.realname);
 					$textl.find(".l").find("img").attr("src", userinfo.avatar);
@@ -216,19 +220,20 @@ define("chat", ["util"], function(util) {
 
 			}
 
-			var poll = require(["poll"]);
+			/*var poll = require(["poll"]);
 			poll.bindMsgEvent(1);
+			*/
 
 		},
 		buildClientContent: function() {
 			var cContent = [
-				'<div class="msg msg-self" time="" mid=""><div class="msg-avatar"> <img alt="" src="./img/img-avatar.png"><p></p></div><div class="msg-cont"></div> </div>'
+				'<div class="msg msg-self" time="" mid=""><div class="msg-avatar"> <img alt="" src="/static/img/img-avatar.png"><p></p></div><div class="msg-cont"></div> </div>'
 			];
 			return $(cContent.join(""));
 		},
 		buildLeftContent: function() {
 			var lContent = [
-				'<li kind="" id="" conver="" class="rc-item"><div class="l"><img alt="" src="./img/img-avatar.png"><span class="i ui-hide"></span></div><div class="m">' +
+				'<li kind="" id="" conver="" class="rc-item"><div class="l"><img alt="" src="/static/img/img-avatar.png"><span class="i ui-hide"></span></div><div class="m">' +
 				'<div class="nickname"><span class="i ui-hide"></span><i class="offline-text"></i></div><div class="rc-msg wto"></div></div><div class="r"></div></li>'
 			];
 			return $(lContent.join(""));
@@ -239,7 +244,7 @@ define("chat", ["util"], function(util) {
 		},
 
 		afterSendMsg: function(inputText, data) {
-			if (data && data.body && data.body.mid) {
+			if (data && data.Code == 0) {
 				$(".msg-self[mid='ms']").eq(0).attr("mid", data.body.mid);
 				chatAjax.setRecentMsg(inputText, data);
 			} else {

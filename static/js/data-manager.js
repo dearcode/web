@@ -319,16 +319,13 @@ var chat_single = function(msgId, conver, inputText, suc, error) {
 	var defaults = {
 		"id": msgId,
 		"aid": cookie("aid"),
+		"uid": cookie("uid"),
 		"from": cookie("uid"),
 		"to": conver,
-		"type": "message_chat",
-		"body": {
-			"content": inputText,
-			"font": '微软雅黑',
-			"fontsize": 10
-		}
+		"ptype": "messageChat",
+		"msg": inputText
 	};
-	data_ajax(suc, error, defaults);
+	data_ajax(suc, error, defaults, 1);
 }
 
 /* 发送消息（群） */

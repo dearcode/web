@@ -389,7 +389,7 @@ var get_contact_list_re = function() {
 			var str = ' <li class="item" conver="' + user.ID + '" id="contact-' +
 				user.ID + '" kind="customer">' + '<div class="l">' +
 				'<img src="/static/img/img-avatar.png" alt=""/>' + '</div>' +
-				'<div class="m">' + '<div class="nickname"><span>' + user.NickName +
+				'<div class="m">' + '<div class="nickname"><span>' + user.Name +
 				'</span><i class="offline-text"></i><span class=""></span></div>' +
 				'<div class="rc-msg wto"></div>' + '</div><div class="r">' +
 				'<span class="i i-ctt" data="' + user.ID + '" labelId="' + user.ID +
@@ -436,8 +436,8 @@ var get_contact_list_re = function() {
 					return;
 				}
 				var dom = util.contactDom(userinfo.ID);
-				dom.find(".nickname span:eq(0)").attr("title", userinfo.NickName).text(
-					userinfo.NickName);
+				dom.find(".nickname span:eq(0)").attr("title", userinfo.Name).text(
+					userinfo.NickName || userinfo.Name);
 				dom.find(".wto").attr("title", userinfo.Signature).text(userinfo.Signature);
 				if (userinfo.Avatar && userinfo.Avatar != "") { // 如果有头像
 					dom.find(".l img").attr("src", userinfo.Avatar);

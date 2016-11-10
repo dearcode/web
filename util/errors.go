@@ -26,4 +26,8 @@ const (
 	ErrMarshalData = 5008
 	// ErrParseData
 	ErrParseData = 5009
+	// ErrMsgNull
+	ErrMsgNull = 5010
+	// ErrSendMsg
+	ErrSendMsg = 5011
 )

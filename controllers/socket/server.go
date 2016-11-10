@@ -100,7 +100,8 @@ func addClient(id int64, c *candy.CandyClient) {
 	l.Lock()
 	defer l.Unlock()
 	if client, ok := Clients[id]; ok {
-		client.Stop()
+		//client.Stop()
+		log.Debugf("%v", client)
 		delete(Clients, id)
 	}
 
@@ -112,7 +113,8 @@ func removeClient(id int64) {
 	l.Lock()
 	defer l.Unlock()
 	if client, ok := Clients[id]; ok {
-		client.Stop()
+		//client.Stop()
+		log.Debugf("%v", client)
 	}
 	delete(Clients, id)
 }
