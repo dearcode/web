@@ -290,7 +290,7 @@ func (s *Server) messageChat(aid string, uid int64) {
 		return
 	}
 
-	log.Debugf("send success id:%v", id)
+	log.Debugf("send success id:%v msg:%v", id, msg)
 
 	s.Response(string("{\"Code\":0, \"Msg\":\"send success\"}"))
 }
@@ -317,6 +317,21 @@ func (s *Server) offlineMessageGet(aid string, uid int64) {
 		return
 	}
 
-	log.Debugf("from:%v msgs:%v", from, msgs)
-	s.Response(msgs)
+	pl, err := meta.ParsePushMessageList([]byte(msgs))
+	if err != nil {
+		log.Errorf("error:%v", err)
+		s.Response(util.Error(util.ErrPushMessage, err.Error()))
+		return
+	}
+
+	log.Debugf("from:%v PushMessageList:%v", from, pl)
+
+	data, err := json.Marshal(pl)
+	if err != nil {
+		log.Errorf("error:%v", err)
+		s.Response(util.Error(util.ErrMarshalData, "Marshal PushMessage List error"))
+		return
+	}
+
+	s.Response(string(data))
 }

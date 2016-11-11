@@ -30,4 +30,6 @@ const (
 	ErrMsgNull = 5010
 	// ErrSendMsg
 	ErrSendMsg = 5011
+	// ErrPushMessage
+	ErrPushMessage = 5012
 )
