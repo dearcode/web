@@ -81,8 +81,9 @@ define("chat_window", ["util"], function(util) {
 					text_in.focus();
 				}
 			}
-			var poll = require(["poll"]);
+			/*var poll = require(["poll"]);
 			poll.msgCounter();
+			*/
 
 			//滚动条滚动到底部
 			setTimeout(function() {
