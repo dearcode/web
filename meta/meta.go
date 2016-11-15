@@ -3,6 +3,7 @@ package meta
 import (
 	"encoding/json"
 	"fmt"
+	"time"
 
 	"github.com/dearcode/candy/meta"
 )
@@ -72,16 +73,18 @@ func ParseFriendList(data []byte) (*FriendList, error) {
 }
 
 type Message struct {
-	ID string `protobuf:"varint,1,opt,name=ID,json=iD,proto3" json:"ID,omitempty"`
+	ID string `json:"ID"`
 	// Before 前一第消息的ID，用来确定是否有消息丢失
-	Before string `protobuf:"varint,2,opt,name=Before,json=before,proto3" json:"Before,omitempty"`
+	Before string `json:"Before"`
 	// Group 如果当前为群聊，设置为群组ID, 否则为0
-	Group string `protobuf:"varint,3,opt,name=Group,json=group,proto3" json:"Group,omitempty"`
+	Group string `json:"Group"`
 	// From 发消息的人的ID
-	From string `protobuf:"varint,4,opt,name=From,json=from,proto3" json:"From,omitempty"`
+	From string `json:"From"`
 	// To 如果当前为私聊，这个设置为收消息用户的ID, 否则为0
-	To   string `protobuf:"varint,5,opt,name=To,json=to,proto3" json:"To,omitempty"`
-	Body string `protobuf:"bytes,6,opt,name=Body,json=body,proto3" json:"Body,omitempty"`
+	To   string `json:"To"`
+	Body string `json:"Body"`
+	// CreateTime 创建时间
+	CreateTime string `json:"CreateTime"`
 }
 
 // Event 事件（消息类型）
@@ -93,13 +96,13 @@ type Relation int32
 // 下推的消息，有系统消息(加群，加好友，上线通知啥的)，正常聊天消息
 type PushMessage struct {
 	// 消息类型，如好友，群，通知， 上线，下线之类的操作
-	Event Event `protobuf:"varint,1,opt,name=Event,json=event,proto3,enum=candy.meta.Event" json:"Event,omitempty"`
+	Event Event `json:"Event"`
 	// 关系操作，加好友，删除好友，T出群，加入群
-	Operate Relation `protobuf:"varint,2,opt,name=Operate,json=operate,proto3,enum=candy.meta.Relation" json:"Operate,omitempty"`
+	Operate Relation `json:"Operate"`
 	// 具体消息
-	Msg Message `protobuf:"bytes,3,opt,name=Msg,json=msg" json:"Msg"`
+	Msg Message `json:"Msg"`
 	// 这消息到底是发给用户的，还是发给群的
-	ToUser bool `protobuf:"varint,4,opt,name=ToUser,json=toUser,proto3" json:"ToUser,omitempty"`
+	ToUser bool `json:"ToUser"`
 }
 
 // NewMessage - create an new Message
@@ -110,12 +113,13 @@ func NewMessage() *Message {
 // ParseMessage - parse Message data
 func ParseMessage(m meta.Message) Message {
 	return Message{
-		ID:     fmt.Sprintf("%v", m.ID),
-		Before: fmt.Sprintf("%v", m.Before),
-		Group:  fmt.Sprintf("%v", m.Group),
-		From:   fmt.Sprintf("%v", m.From),
-		To:     fmt.Sprintf("%v", m.To),
-		Body:   fmt.Sprintf("%v", m.Body),
+		ID:         fmt.Sprintf("%v", m.ID),
+		Before:     fmt.Sprintf("%v", m.Before),
+		Group:      fmt.Sprintf("%v", m.Group),
+		From:       fmt.Sprintf("%v", m.From),
+		To:         fmt.Sprintf("%v", m.To),
+		Body:       fmt.Sprintf("%v", m.Body),
+		CreateTime: fmt.Sprintf("%v", time.Unix(m.ID>>32, 0)),
 	}
 }
 

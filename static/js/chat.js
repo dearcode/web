@@ -245,7 +245,7 @@ define("chat", ["util"], function(util) {
 
 		afterSendMsg: function(inputText, data) {
 			if (data && data.Code == 0) {
-				$(".msg-self[mid='ms']").eq(0).attr("mid", data.body.mid);
+				$(".msg-self[mid='ms']").eq(0).attr("mid", data.MID);
 				chatAjax.setRecentMsg(inputText, data);
 			} else {
 				//TODO 消息发送失败

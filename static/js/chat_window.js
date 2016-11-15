@@ -6,20 +6,11 @@ define("chat_window", ["util"], function(util) {
 	var textInVal = []; //保存输入框中的内容
 
 	var _getHistoryMessages = function(conver, type) {
-		/*if ($.isNumeric(conver)) {
-			get_group_history_all(conver, function(data) {
-				if (data.body) {
-					msgWindow.showHistoryMsg(data.body, conver, type);
-				}
-			});
-		} else {
-		*/
 		get_chat_history_all(conver, function(data) {
-				if (data.body) {
-					msgWindow.showHistoryMsg(data.body, conver, type);
-				}
-			})
-			/*}*/
+			if (data.Code == 0 && data.Body) {
+				msgWindow.showHistoryMsg(data.Body, conver, type);
+			}
+		})
 	};
 
 	var msgWindow = {
@@ -47,7 +38,6 @@ define("chat_window", ["util"], function(util) {
 
 			$("#text_in").val('');
 			this.conver = conver;
-			this.kind = kind;
 			this.aid = util.cookie('aid');
 			this.uid = util.cookie('uid');
 			this.dom = $(".panel-view");
@@ -66,11 +56,8 @@ define("chat_window", ["util"], function(util) {
 					break;
 				}
 			}
-			if (this.kind == "system") {
-				$("#text_in").attr("disabled", "disabled");
-			} else {
-				$("#text_in").removeAttr("disabled");
-			}
+
+			$("#text_in").removeAttr("disabled");
 			var text_in = $("#text_in").get(0);
 			if (document.selection) {
 				text_in.focus();
@@ -444,9 +431,12 @@ define("chat_window", ["util"], function(util) {
 		},
 		showHistoryMsg: function(msgs, conver, type) {
 			//当前conver不一致时不显示信息
-			if (conver != $(".panel-view").attr("conver")) return;
+			if (conver != $(".panel-view").attr("conver")) {
+				return;
+			}
+
 			var userinfo = DDstorage.get(conver);
-			var poll = require("poll");
+			/*var poll = require("poll");*/
 			var selfinfo = DDstorage.get(util.cookie("uid"));
 			var max = msgs.length;
 			if (type == "initload") {
@@ -457,9 +447,8 @@ define("chat_window", ["util"], function(util) {
 				max = 3;
 			}
 			if (type == "init") {
-				max = 10;
+				max = 20;
 			}
-			var skiped = 0;
 			var msgHeightOld = $(".msg-wrap").outerHeight();
 			if (max != 0) {
 				//对消息进行排序
@@ -467,239 +456,107 @@ define("chat_window", ["util"], function(util) {
 				var msgarr = {};
 				for (var i = 0; i < max && i < msgs.length; i++) {
 					var mid;
-					if (msgs[i].message) {
-						mid = msgs[i].message.mid;
-					} else {
-						mid = msgs[i].mid;
+					if (msgs[i].Event != 0) {
+						continue;
 					}
+
+					mid = i;
 					mids.push(mid);
 					msgarr[mid] = msgs[i];
 				}
+
 				mids.sort(function(f, l) {
 					return f < l ? 1 : -1;
 				});
+
 				for (var j = 0; j < mids.length; j++) {
 					var i = mids[j];
 
-					if (!msgarr[i].message) {
-						msgarr[i].message = msgarr[i].body || msgarr[i];
-					}
-
-					if (msgarr[i].message.muuid && $(".msg[msgid='" + msgarr[i].message.muuid +
-							"']").length > 0) {
-						skiped++;
+					if (!msgarr[i].Msg) {
 						continue;
 					}
 
-					if (msgarr[i].mongoId && $(".msg[muid='" + msgarr[i].mongoId + "']").length >
-						0) {
-						skiped++;
-						continue;
-					}
-
-					if (mids[j] && $(".msg[mid='" + mids[j] + "']").length > 0) {
-						skiped++;
-						continue;
-					}
-
-					if (msgarr[i].sender == selfinfo.uid || msgarr[i].from == selfinfo.uid) {
-						var $textc = msgWindow.buildMsgHtml(msgarr[i], false)
+					if (msgarr[i].Msg.From == selfinfo.ID) {
+						var $textc = msgWindow.buildMsgHtml(msgarr[i].Msg, false)
 						var c = "";
-						if (msgarr[i].message.content == "#A_振动") {
-							msgarr[i].message.content = "您发送了一个震屏消息";
-						}
-						if (msgarr[i].message.kind == "voice") {
-							poll.showVoiceMsg(msgarr[i], $textc, true);
-						} else if (msgarr[i].type == "message_file" || (msgarr[i].message &&
-								msgarr[i].message.ptype == "message_file")) {
-							var html = poll.getFileMsgHtml(msgarr[i]);
-							$textc.find(".msg-cont").addClass("mode" + msgarr[i].message.mode).html(
-								html);
-						} else if (!msgarr[i].message.content) {
-							c = '<a download="' + msgarr[i].name + '" href="' + msgarr[i].url +
-								'" target="_blank" rel="send-file"><img src="./img/file2.png" style="vertical-align:middle;margin-right:10px;"/> ' +
-								(msgarr[i].name) + '</a>';
-						} else if (msgarr[i].message.mode == 5) {
-							c = "您取消了接收文件“" + msgarr[i].message.content + "”";
-						} else if (msgarr[i].message.mode == 7) {
-							c = "您接收了接收文件“" + msgarr[i].message.content + "”";
-						} else if (msgarr[i].message.mode == 1001) {
-							c = msgWindow.buildCardMsg(msgarr[i], $textc, selfinfo);
+
+						if (!msgarr[i].Msg.Body) {
+							console.log(msgarr[i]);
 						} else {
-							if (!msgarr[i].message.content) {
-								//                                    console.log(msgarr[i]);
-							} else {
-								c = util.filterMsg(msgarr[i].message.content, true, true).replace(
-									/\n/g, "<br />");
-							}
+							c = util.filterMsg(msgarr[i].Msg.Body, true, true).replace(/\n/g,
+								"<br />");
 						}
+
+
 						if (c) {
-							$textc.find(".msg-cont").addClass("mode" + msgarr[i].message.mode).html(
+							$textc.find(".msg-cont").addClass("mode" + 0).html(
 								c);
 						}
 
-						$textc.attr("time", msgarr[i].message.datetime || msgarr[i].created);
-						$textc.attr("mid", msgarr[i].message.mid);
-						$textc.attr("muid", msgarr[i].mongoId);
-						$textc.attr("msgid", msgarr[i].message.muuid);
-						$textc.find(".msg-avatar").find("p").text(selfinfo.realname);
-						if (selfinfo.avatar) {
-							$textc.find(".msg-avatar").find("img").attr("src", selfinfo.avatar);
+						$textc.attr("time", msgarr[i].Msg.CreateTime);
+						$textc.attr("mid", msgarr[i].Msg.ID);
+						$textc.find(".msg-avatar").find("p").text(selfinfo.NickName ||
+							selfinfo.Name);
+						if (selfinfo.Avatar) {
+							$textc.find(".msg-avatar").find("img").attr("src", selfinfo.Avatar);
 						}
 						$textc.find(".msg-avatar").find("img").attr("data-uid", selfinfo.uid)
 						$("#chat_load_more").after($textc);
 					} else {
-						if (util.isNumber(conver)) {
-							var user = DDstorage.get(msgarr[i].sender || msgarr[i].from);
-							if (!user) {
-								for (var j = 0; $.isArray(userinfo) && j < userinfo.length; j++) {
-									try {
-										var obj = eval("[" + userinfo[j] + "]")[0];
-										if (obj && obj.body && (obj.body.uid == msgarr[i].from || obj.body
-												.uid == msgarr[i].sender)) {
-											user = obj.body;
-										}
-									} catch (e) {
-
-									}
+						var user = DDstorage.get(msgarr[i].Msg.From);
+						if (!user) {
+							get_user_info(msgarr[i].Msg.From, function(data) {
+								if (data) {
+									DDstorage.set(data.ID, data);
+									user = data;
 								}
-							}
-							if (!user) {
-								get_user_info(msgarr[i].sender || msgarr[i].from, function(data) {
-									if (data.code == 1) {
-										DDstorage.set(data.body.uid, data.body);
-										user = data.body;
-									}
-								}, function() {
+							}, function() {
 
-								}, false);
-							}
+							}, false);
+						}
 
-							var $texts = this.buildMsgHtml(msgarr[i], false);
-							var c = "";
-							if (!userinfo) {
-								userinfo = {};
-							}
-							if (msgarr[i].type == "message_file" || msgarr[i].message.ptype ==
-								"message_file" || !msgarr[i].message.content) {
-								c = poll.getFileMsgHtml(msgarr[i]);
-							} else if (msgarr[i].message.mode == 5) {
-								c = (userinfo.realname || msgarr[i].sender) + "取消了接收文件“" + msgarr[i]
-									.message.content + "”";
-							} else if (msgarr[i].message.mode == 7) {
-								c = (userinfo.realname || msgarr[i].sender) + "接收了接收文件“" + msgarr[i]
-									.message.content + "”";
-							} else if (msgarr[i].message.mode == 1001) {
-								c = msgWindow.buildCardMsg(msgarr[i], $texts, user);
-								if (!c) {
-									continue;
-								}
-							} else if (msgarr[i].message.kind == "voice") {
-								poll.showVoiceMsg(msgarr[i], $texts, true);
-							} else if (msgarr[i].message && msgarr[i].message.content) {
-								c = util.filterMsg(msgarr[i].message.content, true, true).replace(
-									/\n/g, "<br />");
-							}
-							if (c) {
-								$texts.find(".msg-cont").html(c).addClass("mode" + msgarr[i].message
-									.mode);
-							}
-							$texts.attr("time", msgarr[i].message.datetime || msgarr[i].created);
-							$texts.attr("mid", msgarr[i].message.mid);
-							$texts.attr("muid", msgarr[i].mongoId);
-							$texts.attr("msgid", msgarr[i].message.muuid);
-							if (!user) {
-								user = {
-									realname: msgarr[i].sender || msgarr[i].from,
-									uid: msgarr[i].sender || msgarr[i].from
-								};
-							}
-							$texts.find(".msg-avatar").find("p").text(user.realname);
-							if (user.avatar) {
-								$texts.find(".msg-avatar").find("img").attr("src", user.avatar);
-							}
-							$texts.find(".msg-avatar").find("img").attr("data-uid", user.uid);
-							$texts.find(".msg-avatar").find("img").attr("data-uid", user.uid).unbind(
-								"click").click(function() {
-								var _this = this;
-								require(["visiting_card"], function(card) {
-									card.show($(_this).attr("data-uid"));
-								});
+						var $texts = this.buildMsgHtml(msgarr[i].Msg, false);
+						var c = "";
+						if (!userinfo) {
+							userinfo = {};
+						}
+
+						if (msgarr[i].Msg && msgarr[i].Msg.Body) {
+							c = util.filterMsg(msgarr[i].Msg.Body, true, true).replace(
+								/\n/g, "<br />");
+						}
+
+
+						if (c) {
+							$texts.find(".msg-cont").html(c).addClass("mode" + 0);
+						}
+
+						$texts.attr("time", msgarr[i].Msg.CreateTime);
+						$texts.attr("mid", msgarr[i].Msg.ID);
+						$texts.find(".msg-avatar").find("p").text(user.NickName || user.Name);
+						if (user.Avatar) {
+							$texts.find(".msg-avatar").find("img").attr("src", user.Avatar);
+						}
+						$texts.find(".msg-avatar").find("img").attr("data-uid", user.ID);
+						$texts.find(".msg-avatar").find("img").attr("data-uid", user.ID).unbind(
+							"click").click(function() {
+							var _this = this;
+							require(["visiting_card"], function(card) {
+								card.show($(_this).attr("data-uid"));
 							});
-							$("#chat_load_more").after($texts);
-						} else {
-							var $texts = this.buildMsgHtml(msgarr[i], false);
-							var c = "";
-							if (msgarr[i].type == "message_file" || msgarr[i].message.ptype ==
-								"message_file" || !msgarr[i].message.content) {
-								c = poll.getFileMsgHtml(msgarr[i]);
-							} else if (msgarr[i].message.mode == 5) {
-								c = (userinfo.realname || msgarr[i].sender || msgarr[i].from) +
-									"取消了接收文件“" + msgarr[i].message.content + "”";
-							} else if (msgarr[i].message.mode == 7) {
-								c = (userinfo.realname || msgarr[i].sender) + "接收了接收文件“" + msgarr[i]
-									.message.content + "”";
-							} else if (msgarr[i].message.mode == 1001) {
-								c = msgWindow.buildCardMsg(msgarr[i], $texts, userinfo);
-								if (!c) {
-									continue;
-								}
-							} else if (msgarr[i].message.kind == "voice") {
-								poll.showVoiceMsg(msgarr[i], $texts, true)
-							} else if (msgarr[i].message && msgarr[i].message.content) {
-								c = util.filterMsg(msgarr[i].message.content, true, true).replace(
-									/\n/g, "<br />");
-							}
-							if (!userinfo) {
-								userinfo = {
-									realname: msgarr[i].sender
-								};
-							}
-							if (c == "#A_振动") {
-								c = userinfo.realname + "向您发送了一个震屏";
-							}
-							if (msgarr[i].message.url && msgarr[i].type == "message_notice") {
-								c += "&nbsp;&nbsp;&gt;&gt;<a href='" + msgarr[i].message.url +
-									"' target='_blank'>点击这里查看详情</a>"
-							}
-							if (msgarr[i].message.pic && msgarr[i].type == "message_notice") {
-								c += "<div><a rel='gallery' href='" + msgarr[i].message.pic +
-									"'><img src='" + msgarr[i].message.pic +
-									"' style='max-width:320px;' class='message-img'></a></div>"
-							}
-							if (c) {
-								$texts.find(".msg-cont").html(c).addClass("mode" + msgarr[i].message
-									.mode);
-							}
-							$texts.attr("time", msgarr[i].message.datetime || msgarr[i].created);
-							$texts.attr("mid", msgarr[i].message.mid);
-							$texts.attr("muid", msgarr[i].mongoId);
-							$texts.attr("msgid", msgarr[i].message.muuid);
-
-							$texts.find(".msg-avatar").find("p").text(userinfo.realname);
-							if (userinfo.avatar) {
-								$texts.find(".msg-avatar").find("img").attr("src", userinfo.avatar);
-							}
-							$texts.find(".msg-avatar").find("img").attr("data-uid", userinfo.uid);
-							$("#chat_load_more").after($texts);
-						}
+						});
+						$("#chat_load_more").after($texts);
 					}
-					if (type == "init" && j == 0) {
-						var con = msgarr[i].message.content;
+				}
 
-						if (!con) {
-							con = "[文件]";
-						} else if (con.match(/<IMG /gi)) {
-							con = "[图片]";
-						} else {
-
-						}
-						util.recentContactDom(conver).find(".rc-msg").text(con);
-					}
+				if (type == "init" && j == 0) {
+					var con = msgarr[i].Msg.Body;
+					util.recentContactDom(conver).find(".rc-msg").text(con);
 				}
 			} else {
 				$("#chat_load_more").remove();
 			}
+
 			if (type == "loadmore") {
 				if (max < 10) {
 					$("#chat_load_more").remove();
@@ -707,7 +564,7 @@ define("chat_window", ["util"], function(util) {
 			}
 			$("#chat_load_more").removeClass("load-more-ing");
 			var msgHeightNew = $(".msg-wrap").outerHeight();
-			poll.bindMsgEvent();
+			/*poll.bindMsgEvent();*/
 			if (type == "init" || type == "initload") {
 				$(".panel-msg .bd").scrollTop($(".msg-wrap").outerHeight() - $(
 					".panel-msg .bd").height());
@@ -720,7 +577,7 @@ define("chat_window", ["util"], function(util) {
 			var time = "",
 				timestamp = "";
 			if ($(".msg").length == 0) {
-				time = msg.created || msg.body.datetime;
+				time = msg.CreateTime;
 				if ($.isNumeric(time)) {
 					time = new Date(parseInt(time, 10));
 				} else {
@@ -730,13 +587,13 @@ define("chat_window", ["util"], function(util) {
 				timestamp = '<div class="time-stamp"><span>' + time + '</span></div>';
 			}
 			var cContent = [timestamp,
-				'<div class="msg msg-self" time="" mid=""><div class="msg-avatar"> <img alt="" src="./img/img-avatar.png"><p></p></div><div class="msg-cont"></div> </div>'
+				'<div class="msg msg-self" time="" mid=""><div class="msg-avatar"> <img alt="" src="/static/img/img-avatar.png"><p></p></div><div class="msg-cont"></div> </div>'
 			];
 			return $(cContent.join(""));
 		},
 		buildServiceContent: function(msg) {
 			var sContent = [
-				'<div class="msg msg-other" time="" mid=""><div class="msg-avatar"><img alt="" src="./img/img-avatar.png"><p></p></div><div class="msg-cont"></div> </div>'
+				'<div class="msg msg-other" time="" mid=""><div class="msg-avatar"><img alt="" src="/static/img/img-avatar.png"><p></p></div><div class="msg-cont"></div> </div>'
 			];
 			return $(sContent.join(""));
 		},
@@ -745,14 +602,15 @@ define("chat_window", ["util"], function(util) {
 			var time, lasttime, timestamp = "",
 				html, userInfo = util.cookie("uid"),
 				date, pattern, diff;
-			if (msg.from == userInfo || msg.sender == userInfo) {
+			if (msg.From == userInfo) {
 				html =
-					'<div class="msg msg-self" time="" mid=""><div class="msg-avatar"> <img alt="" src="./img/img-avatar.png"><p></p></div><div class="msg-cont"></div> </div>';
+					'<div class="msg msg-self" time="" mid=""><div class="msg-avatar"> <img alt="" src="/static/img/img-avatar.png"><p></p></div><div class="msg-cont"></div> </div>';
 			} else {
 				html =
-					'<div class="msg msg-other" time="" mid=""><div class="msg-avatar"> <img alt="" src="./img/img-avatar.png"><p></p></div><div class="msg-cont"></div> </div>';
+					'<div class="msg msg-other" time="" mid=""><div class="msg-avatar"> <img alt="" src="/static/img/img-avatar.png"><p></p></div><div class="msg-cont"></div> </div>';
 			}
-			time = msg.created || msg.datetime || msg.body.datetime;
+
+			time = msg.CreateTime;
 			if (append) {
 				lasttime = $(".msg").last().attr("time");
 			} else {

@@ -2,6 +2,7 @@ package socket
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"strconv"
 
@@ -290,9 +291,9 @@ func (s *Server) messageChat(aid string, uid int64) {
 		return
 	}
 
-	log.Debugf("send success id:%v msg:%v", id, msg)
+	log.Debugf("send success id:%v", id)
 
-	s.Response(string("{\"Code\":0, \"Msg\":\"send success\"}"))
+	s.Response(fmt.Sprintf("{\"Code\":0, \"Msg\":\"send success\", \"MID\":\"%v\"}", id))
 }
 
 func (s *Server) offlineMessageGet(aid string, uid int64) {
@@ -317,21 +318,22 @@ func (s *Server) offlineMessageGet(aid string, uid int64) {
 		return
 	}
 
-	pl, err := meta.ParsePushMessageList([]byte(msgs))
+	log.Debugf("msgs:%v", msgs)
+
+	mlist, err := meta.ParsePushMessageList([]byte(msgs))
 	if err != nil {
 		log.Errorf("error:%v", err)
-		s.Response(util.Error(util.ErrPushMessage, err.Error()))
+		s.Response(util.Error(util.ErrUnmarshalData, err.Error()))
 		return
 	}
 
-	log.Debugf("from:%v PushMessageList:%v", from, pl)
-
-	data, err := json.Marshal(pl)
+	data, err := json.Marshal(mlist)
 	if err != nil {
 		log.Errorf("error:%v", err)
-		s.Response(util.Error(util.ErrMarshalData, "Marshal PushMessage List error"))
+		s.Response(util.Error(util.ErrMarshalData, err.Error()))
 		return
 	}
 
-	s.Response(string(data))
+	log.Debugf("from:%v msgs:%v", from, string(data))
+	s.Response(fmt.Sprintf("{\"Code\": 0, \"Body\":%v}", string(data)))
 }
