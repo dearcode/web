@@ -352,29 +352,6 @@ var chat_group = function(msgId, conver, inputText, suc, error) {
 	data_ajax(suc, error, defaults);
 }
 
-/* 发送消息（临时会话） */
-var chat_temp = function(msgId, conver, inputText, suc, error) {
-	if (inputText) {
-		try {
-			inputText = inputText.replace(/"/g, "\"");
-		} catch (e) {} //某些特殊字符可能导致解码失败
-	}
-	var defaults = {
-		"id": msgId,
-		"aid": cookie("aid"),
-		"from": cookie("uid"),
-		"to": conver,
-		"type": "message_chat",
-		"body": {
-			"content": inputText,
-			"font": '微软雅黑',
-			"fontsize": 10,
-			"gid": conver,
-			"groupKind": "temp_group"
-		}
-	};
-	data_ajax(suc, error, defaults);
-}
 
 /* 搜索用户 */
 var search_user_list = function(value, suc, error) {

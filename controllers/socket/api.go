@@ -304,7 +304,7 @@ func (s *Server) offlineMessageGet(aid string, uid int64) {
 		return
 	}
 
-	c, err := getClient(uid)
+	c, err := getClient(from)
 	if err != nil {
 		log.Errorf("%v", err)
 		s.Response(util.Error(util.ErrSessionTimeout, "session timeout"))
@@ -334,6 +334,5 @@ func (s *Server) offlineMessageGet(aid string, uid int64) {
 		return
 	}
 
-	log.Debugf("from:%v msgs:%v", from, string(data))
 	s.Response(fmt.Sprintf("{\"Code\": 0, \"Body\":%v}", string(data)))
 }

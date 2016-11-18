@@ -1,32 +1,56 @@
 define(function(require, exports, module) {
 	var util = require("util"),
-		//screenshot = require("screenshot"),
-		//team_msg = require("team_msg"),
-		notification = require("notification"),
-		//share = require("share"),
-
 		stop = false,
 		errorTimes = 0,
 		aid = util.cookie("aid"),
 		uid = util.cookie("uid"),
 		invisibleMsgTimer = null,
-		stopPoll = false;
+
+		//注册消息收取事件
+		socket = io(),
+		COOKIE_NAME = 'sessionid';
+
+	socket.on('chat:message', function(msg, callBack) {
+		console.log(msg);
+		callBack("recv success" + msg);
+
+		if ($("#net-error").length > 0) {
+			$.graynormal($("#user-avatar").find("img"));
+			$("#msgbox-alert-ok").click();
+		}
+
+		//初步解析消息
+		msg = JSON.parse(msg);
+
+		//消息回执
+		//rebackMsg(msg);
+
+		//TODO 判断消息是否是数组消息， 如果是数组就循环处理
+		if ($.isArray(msg)) {
+
+		} else {
+			parse(msg);
+		}
+	});
+
+	socket.emit('main session', $.cookie(COOKIE_NAME), function(data) {
+		console.log(data);
+	});
+
 
 	//拉取消息
 	function poll() {
-		if (stopPoll) {
-			return;
-		}
 
 		var from = util.cookie("uid");
+		if (!from) {
+			stop = true;
+		}
+
 		if (stop) {
 			popup4Relogin();
 			return;
 		}
 
-		if (!from) {
-			stop = true;
-		}
 
 		$.ajax({
 			url: "/api.action?aid=" + aid + "uid=" + uid + "&from=" + from +
@@ -34,41 +58,6 @@ define(function(require, exports, module) {
 			type: "GET",
 			timeout: 60000,
 			complete: function(result) {
-				try {
-					var response = result.responseText,
-						msg;
-					//空消息
-					if (!response) {
-						poll();
-						return;
-					}
-					if (errorTimes > 0) {
-						errorTimes = 0;
-					}
-
-					if ($("#net-error").length > 0) {
-						$.graynormal($("#user-avatar").find("img"));
-						$("#msgbox-alert-ok").click();
-					}
-
-					//初步解析消息
-					msg = JSON.parse(response);
-					if (msg.error && msg.error == "100") {
-						stop = true;
-					}
-
-					if ($.isArray(msg)) {
-						for (var i = 0; i < msg.length; i++) {
-							rebackMsg(msg[i]);
-							parse(msg[i]);
-						}
-					} else {
-						rebackMsg(msg);
-						parse(msg);
-					}
-				} catch (e) {
-					console.log(e.stack || e.message || e);
-				}
 				poll();
 			},
 			error: function() {
@@ -80,7 +69,7 @@ define(function(require, exports, module) {
 						$("#user_state").attr("last-status", state).attr("class",
 							"i i-offline");
 					}
-					stopPoll = true;
+
 					util.alert("提示", "<div id='net-error'>您的网络可能存在问题，请检查网络是否连接正常</div>",
 						function() {
 							errorTimes = 0;
@@ -105,12 +94,9 @@ define(function(require, exports, module) {
 		});
 	}
 
-	function stopPoll() {
-		stopPoll = true;
-	}
+
 	//弹框提醒重新登录
 	function popup4Relogin(msg) {
-		stopPoll = true;
 		//延迟5s弹框
 		setTimeout(function() {
 			offline = true;
@@ -127,53 +113,40 @@ define(function(require, exports, module) {
 	}
 
 	//解析消息
-	function parse(msgBean) {
-		if (!msgBean || typeof msgBean != 'object') {
+	function parse(msg) {
+		if (!msg || typeof msg != 'object') {
 			return;
 		}
-		//截屏消息
-		/*if(msgBean.type == "screenshot"){
-			screenshot.screenshot(msgBean);
-			return;
-		}
-		*/
-		//在线聊天消息
-		if (msgBean.type == "message_chat") {
-			if (beforeParse(msgBean)) {
+
+
+		if (msg.Event == 0) { //普通聊天消息
+			if (beforeParse(msg)) {
 				return;
 			}
-			msgBean.kind = "chat";
-			parseChat(msgBean, false);
+			msg.kind = "chat";
+			parseChat(msg.Msg, false);
 			return;
-		}
-		//离线消息
-		if (msgBean.type == "iq_offline_message_get") {
-			parseOffline(msgBean);
-			return;
-		}
-		//状态改变
-		if (msgBean.type == "presence") {
-			update_status(msgBean);
-			return;
-		}
-		//系统消息
-		if (msgBean.type == "message_notice") {
-			msgBean.kind = "notice";
-			var tim = util.formatDate(new Date(msgBean.body.datetime),
+		} else if (msg.Event == 1) { //群组消息
+
+		} else if (msg.Event == 2) { //好友关系
+			update_status(msg);
+		} else if (msg.Event == 3) { //好友上线
+			update_status(msg);
+		} else if (msg.Event == 4) { //好友下线
+			update_status(msg);
+		} else if (msg.Event == 5) { //通知
+			msg.kind = "notice";
+			var tim = util.formatDate(new Date(msg.CreateTime),
 				"yyyy-MM-dd HH:mm:ss");
 			msgBean.body.content = "【" + tim + "】&nbsp;&nbsp;" + msgBean.body.content;
 			parseChat(msgBean);
 			return;
+		} else {
+			console.log("未知消息类型");
 		}
-		//文件消息
-		if (msgBean.type == "message_file") {
-			if (beforeParse(msgBean)) {
-				return;
-			}
-			msgBean.kind = "file";
-			parseChat(msgBean);
-			return;
-		}
+
+		return;
+
 		//群设置消息
 		/*if(msgBean.type == "iq_group_set"){
 			team_msg.parse(msgBean);
@@ -212,13 +185,6 @@ define(function(require, exports, module) {
 		if (msgBean.code == 110) {
 			popup4Relogin(msgBean.msg);
 		}
-		//账号另一地登录
-		if (msgBean.type == "failure" && msgBean.body && msgBean.body.code == 88) {
-			if (beforeParse(msgBean)) {
-				return;
-			}
-			popup4Relogin(msgBean.body.msg);
-		}
 
 		if (msgBean.type == "message_read_notify") {
 			parseRead(msgBean);
@@ -226,12 +192,13 @@ define(function(require, exports, module) {
 		}
 	}
 
-	function beforeParse(msgBean) {
-		return (typeof msgBean.to != "undefined" && msgBean.to != uid && !$.isNumeric(
-			msgBean.to)) && (typeof msgBean.from != "undefined" && msgBean.from !=
+	function beforeParse(msg) {
+		return (typeof msg.To != "undefined" && msg.To != uid && !$.isNumeric(
+			msg.To)) && (typeof msg.From != "undefined" && msg.From !=
 			uid);
 	}
 
+	//更新用户信息
 	function updateUserInfo(msg) {
 		get_user_info(msg.from, function(json) {
 			var old = DDstorage.get(msg.from),
@@ -249,14 +216,13 @@ define(function(require, exports, module) {
 		});
 	}
 
-	//
-	function parseChat(msgBean, offline) {
+	function parseChat(msg, offline) {
 		var conver = $(".panel-view").attr("conver"),
 			userinfo, from, gid, content, len;
-		if (msgBean.body && msgBean.body.content) {
-			content = msgBean.body.content;
+		if (msg.Body) {
+			content = msg.Body;
 		}
-		from = msgBean.from;
+		from = msg.From;
 		var f = msgBean.from.toLowerCase();
 		var t = msgBean.to;
 		var u = uid.toLowerCase();
@@ -321,16 +287,11 @@ define(function(require, exports, module) {
 		//显示未读消息数目
 		if (msgBean.from != uid) {
 			msgCounter();
-			notification.flashTitle();
+
 			if (util.cookie('isOpenSound') == 1) {
 				$.publish('soundPlay');
 			}
 		}
-	}
-
-	//系统消息
-	function parseSystemMsg(msgBean) {
-		notification.systemMsg(msgBean);
 	}
 
 	//离线消息
@@ -346,23 +307,9 @@ define(function(require, exports, module) {
 			if (type == "message_chat") {
 				offline[i].data.kind = "chat";
 				parseChat(offline[i].data, true);
-			} else if (type == "message_file") {
-				offline[i].data.kind = "file";
-				parseFile(offline[i].data, true);
-			} else if (type == "message_notice") {
-				offline[i].data.kind = "notice";
-				parseSystemMsg(offline[i].data);
 			} else {
 				console.log(offline[i]);
 			}
-		}
-	}
-	//转换文件消息
-	function parseFile(msgBean, offline) {
-		var html = getFileMsgHtml(msgBean);
-		if (html) {
-			msgBean.body.content = html;
-			parseChat(msgBean, offline);
 		}
 	}
 
@@ -711,11 +658,6 @@ define(function(require, exports, module) {
 				} else {
 					return;
 				}
-			} else if (msg.body.kind == "voice") {
-				showVoiceMsg(msg, jdom);
-			} else if (msg.type == "message_file") {
-				var content = getFileMsgHtml(msg);
-				jdom.find(".msg-cont").html(content);
 			} else {
 				var content = msg.body.content;
 				if (msg.body.url && msg.type == "message_notice") {
@@ -754,76 +696,11 @@ define(function(require, exports, module) {
 			if ($(".message-img").length > 0) {
 				$(".msg-wrap .message-img").parent().lightBox();
 			}
-			//文件消息回执
-			/*if(confirm) {
-			    share.fileAck();
-			}*/
 
 			//事件绑定
 			jdom.find(".msg-avatar").find("img").attr("data-uid", userInfo.uid).css(
 				"cursor", "pointer");
 			bindMsgEvent(1);
-		}
-	}
-
-	function notify(msgBean, userinfo, getNotify) {
-		var key, content;
-		if (msgBean.from == uid) {
-			console.log("from self");
-			return;
-		}
-		if (!userinfo) {
-			userinfo = {};
-			userinfo.uid = msgBean.from;
-			userinfo.realname = msgBean.from;
-			userinfo.avatar = "../../img/img-avatar.png";
-			console.log("using default userinfo");
-		}
-
-		if (msgBean.body && msgBean.body.content) {
-			key = msgBean.from;
-			if ($.isNumeric(msgBean.to)) {
-				key = msgBean.to;
-			}
-			content = msgBean.body.content;
-			if (msgBean.type == "message_file") {
-				content = "[文件]";
-			}
-			if (msgBean.body.mode == 1001) {
-				content = "[名片]";
-			}
-			if (msgBean.body.kind == "voice") {
-				content = "[语音]";
-			}
-			if (msgBean.type == "message_notice") {
-				key = msgBean.body.source;
-				content = msgBean.body.title;
-			}
-		} else if (msgBean.type == "message_file") {
-			key = msgBean.from;
-			if ($.isNumeric(msgBean.to)) {
-				key = msgBean.to;
-			}
-			content = "[文件]";
-		}
-		if (getNotify) {
-			var content = notification.getSimpleMsg(content);
-			return {
-				avatar: userinfo.avatar,
-				from: key,
-				title: userinfo.realname || msgBean.from,
-				content: content
-			}
-		} else {
-			var notice = notification.noticeMsg(userinfo.avatar, key, userinfo.realname ||
-				msgBean.from, content);
-			var noticeCover;
-			if (msgBean.to == uid) {
-				noticeCover = msgBean.from;
-			} else {
-				noticeCover = msgBean.to;
-			}
-			Timline.putNotification(noticeCover, notice);
 		}
 	}
 
@@ -1209,65 +1086,9 @@ define(function(require, exports, module) {
 				card.show(id);
 			});
 		});
-		$("a[download]").unbind("click").bind("click", function() {
-			var href = $(this).attr("href"),
-				download = $(this).attr("download");
-			if (href.indexOf("http://storage.dearcode.net") == 0 || href.indexOf(
-					"http://s.dearcode.net") == 0) {
-				download = encodeURI(encodeURI(download));
-				href = "/file/download?url=" + encodeURIComponent(href) + "&fileName=" +
-					download;
-				$(this).attr("href", href)
-			}
-		});
 
 		$(".msg-avatar img").unbind("error").bind("error", function() {
 			$(this).attr("src", "/static/img/img-avatar.png");
-		});
-		$(".voice-msg").unbind("click").bind("click", function() {
-			var url = $(this).attr("data-url");
-			url = "/msg/voice?url=" + encodeURIComponent(url);
-			var player = $("#player_voice");
-			var _this = this;
-			$(".voice-msg").removeClass("playing").removeClass("voice-playing").removeClass(
-				"voice-playing-self");
-			if ($(this).hasClass("voice-msg-self")) {
-				$(this).addClass("voice-playing-self");
-			}
-			$(this).addClass("playing");
-			if (player.length == 0) {
-				$("body").append(
-					"<div id='player_voice' style='width:0;height:0'></div>");
-				player = $("#player_voice");
-				player.jPlayer({
-					swfPath: "js",
-					supplied: "wav",
-					solution: "html,flash",
-					ready: function() {
-						$(this).jPlayer("setMedia", {
-							wav: url
-						}).jPlayer("volume", 1).jPlayer("play");
-					},
-					error: function() {
-						$(".playing").removeClass("voice-playing").removeClass(
-							"voice-playing-self");
-						util.alert("提示", "语音消息播放失败，您可以稍后重试");
-					},
-					playing: function() {
-						$(".playing").addClass("voice-playing");
-					},
-					ended: function() {
-						$(".playing").removeClass("voice-playing").removeClass(
-							"voice-playing-self");
-						$(".playing").parent().next().find(".voice-status .unread").addClass(
-							"read");
-					}
-				});
-			} else {
-				player.jPlayer("setMedia", {
-					wav: url
-				}).jPlayer("volume", 1).jPlayer("play");
-			}
 		});
 	}
 
@@ -1292,11 +1113,8 @@ define(function(require, exports, module) {
 		poll: poll,
 		readMsg: readMsg,
 		showMsg: showMsg,
-		getFileMsgHtml: getFileMsgHtml,
-		showVoiceMsg: showVoiceMsg,
 		bindMsgEvent: bindMsgEvent,
-		msgCounter: msgCounter,
-		stopPoll: stopPoll
+		msgCounter: msgCounter
 	};
 
 });

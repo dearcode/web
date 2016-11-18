@@ -38,6 +38,8 @@ define("chat_window", ["util"], function(util) {
 
 			$("#text_in").val('');
 			this.conver = conver;
+			this.kind = kind;
+
 			this.aid = util.cookie('aid');
 			this.uid = util.cookie('uid');
 			this.dom = $(".panel-view");
@@ -57,7 +59,13 @@ define("chat_window", ["util"], function(util) {
 				}
 			}
 
-			$("#text_in").removeAttr("disabled");
+			if (this.kind == "system") {
+				$("#text_in").attr("disabled", "disabled"); + $("#text_in").removeAttr(
+					"disabled");
+			} else {
+				$("#text_in").removeAttr("disabled");
+			}
+
 			var text_in = $("#text_in").get(0);
 			if (document.selection) {
 				text_in.focus();
@@ -68,9 +76,6 @@ define("chat_window", ["util"], function(util) {
 					text_in.focus();
 				}
 			}
-			/*var poll = require(["poll"]);
-			poll.msgCounter();
-			*/
 
 			//滚动条滚动到底部
 			setTimeout(function() {
@@ -84,6 +89,7 @@ define("chat_window", ["util"], function(util) {
 				notice.close();
 			}
 		},
+		//单人消息
 		showSingleMsg: function() {
 			var userinfo = DDstorage.get(this.conver) || {};
 			msgWindow.dom.attr("conver", msgWindow.conver);
@@ -146,6 +152,7 @@ define("chat_window", ["util"], function(util) {
 				$("#team-temp").show();
 			}
 		},
+		//群组消息
 		showGroupMsg: function() {
 			$("#send-mail").show();
 			$("#team-share").show();
@@ -249,19 +256,8 @@ define("chat_window", ["util"], function(util) {
 					var msg = "",
 						kind = "chat";
 					var user = DDstorage.get(unreadmsg[j].from || unreadmsg[j].body.from);
-					if (unreadmsg[j].type && unreadmsg[j].type == "message_file") {
-						kind = "file";
-						msg = poll.getFileMsgHtml(unreadmsg[j]);
-					} else if (unreadmsg[j].body.mode == 5) {
-						msg = (user.realname || unreadmsg[j].from) + "取消了接收文件“" + unreadmsg[j]
-							.body.content + "”";
-					} else if (unreadmsg[j].body.mode == 7) {
-						msg = (user.realname || unreadmsg[j].from) + "接收了接收文件“" + unreadmsg[j]
-							.body.content + "”";
-					} else if (unreadmsg[j].body.mode == 1001) {
+					if (unreadmsg[j].body.mode == 1001) {
 						msg = msgWindow.buildCardMsg(unreadmsg[j]);
-					} else if (unreadmsg[j].body.kind == "voice") {
-						poll.showVoiceMsg(unreadmsg[j], $text1s);
 					} else if (unreadmsg[j].body.content) {
 						msg = util.filterMsg(unreadmsg[j].body.content, true, true).replace(
 							/\n/g, "<br />");
@@ -326,19 +322,8 @@ define("chat_window", ["util"], function(util) {
 
 					var msg = "",
 						kind = "chat";
-					if (unreadmsg[j].type && unreadmsg[j].type == "message_file") {
-						msg = poll.getFileMsgHtml(unreadmsg[j]);
-						kind = "file";
-					} else if (unreadmsg[j].body.mode == 5) {
-						msg = (user.realname || unreadmsg[j].from) + "取消了接收文件“" + unreadmsg[j]
-							.body.content + "”";
-					} else if (unreadmsg[j].body.mode == 7) {
-						msg = (user.realname || unreadmsg[j].from) + "接收了接收文件“" + unreadmsg[j]
-							.body.content + "”";
-					} else if (unreadmsg[j].body.mode == 1001) {
+					if (unreadmsg[j].body.mode == 1001) {
 						msg = msgWindow.buildCardMsg(unreadmsg[j], $text1s, userinfo);
-					} else if (unreadmsg[j].body.kind == "voice") {
-						poll.showVoiceMsg(unreadmsg[j], $text1s);
 					} else if (unreadmsg[j].body.content) {
 						msg = util.filterMsg(unreadmsg[j].body.content, true, true).replace(
 							/\n/g, "<br />");
@@ -448,42 +433,40 @@ define("chat_window", ["util"], function(util) {
 			}
 			if (type == "init") {
 				max = 20;
+			} else {
+				max = msgs.length;
 			}
+
 			var msgHeightOld = $(".msg-wrap").outerHeight();
 			if (max != 0) {
 				//对消息进行排序
 				var mids = [];
-				var msgarr = {};
-				for (var i = 0; i < max && i < msgs.length; i++) {
+				for (var i = 0; i < msgs.length; i++) {
 					var mid;
-					if (msgs[i].Event != 0) {
+					if (msgs[i].Event != 0 || msgs[i].Msg.From != userinfo.ID) {
 						continue;
 					}
 
 					mid = i;
 					mids.push(mid);
-					msgarr[mid] = msgs[i];
 				}
 
 				mids.sort(function(f, l) {
 					return f < l ? 1 : -1;
 				});
 
-				for (var j = 0; j < mids.length; j++) {
+				for (var j = 0; j < max; j++) {
 					var i = mids[j];
 
-					if (!msgarr[i].Msg) {
-						continue;
-					}
-
-					if (msgarr[i].Msg.From == selfinfo.ID) {
-						var $textc = msgWindow.buildMsgHtml(msgarr[i].Msg, false)
+					var msg = msgs[i].Msg;
+					if (msg.From == selfinfo.ID) {
+						var $textc = msgWindow.buildMsgHtml(msg, false)
 						var c = "";
 
-						if (!msgarr[i].Msg.Body) {
-							console.log(msgarr[i]);
+						if (!msg.Body) {
+							console.log(msg);
 						} else {
-							c = util.filterMsg(msgarr[i].Msg.Body, true, true).replace(/\n/g,
+							c = util.filterMsg(msg.Body, true, true).replace(/\n/g,
 								"<br />");
 						}
 
@@ -493,8 +476,8 @@ define("chat_window", ["util"], function(util) {
 								c);
 						}
 
-						$textc.attr("time", msgarr[i].Msg.CreateTime);
-						$textc.attr("mid", msgarr[i].Msg.ID);
+						$textc.attr("time", msg.CreateTime);
+						$textc.attr("mid", msg.ID);
 						$textc.find(".msg-avatar").find("p").text(selfinfo.NickName ||
 							selfinfo.Name);
 						if (selfinfo.Avatar) {
@@ -503,9 +486,9 @@ define("chat_window", ["util"], function(util) {
 						$textc.find(".msg-avatar").find("img").attr("data-uid", selfinfo.uid)
 						$("#chat_load_more").after($textc);
 					} else {
-						var user = DDstorage.get(msgarr[i].Msg.From);
+						var user = DDstorage.get(msg.From);
 						if (!user) {
-							get_user_info(msgarr[i].Msg.From, function(data) {
+							get_user_info(msg.From, function(data) {
 								if (data) {
 									DDstorage.set(data.ID, data);
 									user = data;
@@ -515,14 +498,14 @@ define("chat_window", ["util"], function(util) {
 							}, false);
 						}
 
-						var $texts = this.buildMsgHtml(msgarr[i].Msg, false);
+						var $texts = this.buildMsgHtml(msg, false);
 						var c = "";
 						if (!userinfo) {
 							userinfo = {};
 						}
 
-						if (msgarr[i].Msg && msgarr[i].Msg.Body) {
-							c = util.filterMsg(msgarr[i].Msg.Body, true, true).replace(
+						if (msg && msg.Body) {
+							c = util.filterMsg(msg.Body, true, true).replace(
 								/\n/g, "<br />");
 						}
 
@@ -531,8 +514,8 @@ define("chat_window", ["util"], function(util) {
 							$texts.find(".msg-cont").html(c).addClass("mode" + 0);
 						}
 
-						$texts.attr("time", msgarr[i].Msg.CreateTime);
-						$texts.attr("mid", msgarr[i].Msg.ID);
+						$texts.attr("time", msg.CreateTime);
+						$texts.attr("mid", msg.ID);
 						$texts.find(".msg-avatar").find("p").text(user.NickName || user.Name);
 						if (user.Avatar) {
 							$texts.find(".msg-avatar").find("img").attr("src", user.Avatar);
@@ -550,7 +533,7 @@ define("chat_window", ["util"], function(util) {
 				}
 
 				if (type == "init" && j == 0) {
-					var con = msgarr[i].Msg.Body;
+					var con = msg.Body;
 					util.recentContactDom(conver).find(".rc-msg").text(con);
 				}
 			} else {

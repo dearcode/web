@@ -19,10 +19,14 @@ define("chat", ["util"], function(util) {
 				util.alert("提示", "抱歉，暂时无法回复系统消息");
 				return;
 			}
+
 			if (!msg) {
 				$("#text_in").val("");
 			}
+
+			//显示本地消息
 			chatAjax.showClientMsg(inputText);
+			//单人消息
 			if (this.kind == "customer") {
 				chat_single(this.msgId, this.conver, (util.filterMsg(inputText, false,
 					false)), function(data) {
@@ -32,7 +36,7 @@ define("chat", ["util"], function(util) {
 				}, function() {
 					chatAjax.afterSendMsg(inputText);
 				});
-			} else if (this.kind == "discussion_group") {
+			} else if (this.kind == "discussion_group") { //群组消息
 				chat_group(this.msgId, this.conver, (util.filterMsg(inputText, false,
 					false)), function(data) {
 					chatAjax.redirectLogin(data);
@@ -40,14 +44,8 @@ define("chat", ["util"], function(util) {
 				}, function() {
 					chatAjax.afterSendMsg(inputText);
 				});
-			} else { //临时会话
-				chat_temp(this.msgId, this.conver, (util.filterMsg(inputText, false,
-					false)), function(data) {
-					chatAjax.redirectLogin(data);
-					chatAjax.afterSendMsg(inputText, data);
-				}, function() {
-					chatAjax.afterSendMsg(inputText);
-				});
+			} else {
+				console.log("不提供临时会话");
 			};
 			$("#text_in").focus();
 		},
@@ -62,14 +60,12 @@ define("chat", ["util"], function(util) {
 						expires: -1
 					});
 
-					$("body").addClass("sendingMail");
 					window.location.href = "/login";
 				});
 				setTimeout(function() {
 					util.cookie("uid", "", {
 						expires: -1
 					});
-					$("body").addClass("sendingMail");
 					window.location.href = "/login";
 				}, 5000);
 			}
@@ -176,6 +172,7 @@ define("chat", ["util"], function(util) {
 					$(this).find(".r").text(util.formatDate(new Date(), "HH:mm:ss"));
 				}
 			});
+			/*
 			if (!isfind) {
 				$textl = chatAjax.buildLeftContent();
 				var dom = $(".panel-view");
@@ -219,7 +216,8 @@ define("chat", ["util"], function(util) {
 				}
 
 			}
-
+			*/
+			var poll = require(["poll"]);
 			/*var poll = require(["poll"]);
 			poll.bindMsgEvent(1);
 			*/
@@ -346,16 +344,7 @@ define("chat", ["util"], function(util) {
 					}
 				});
 			} else {
-				chat_temp(oldMsgId, this.conver, text, function(data) {
-					if (data && data.body.mid) {
-						target.attr("mid", data.body.mid).removeClass("msg-failed").removeAttr(
-							"title");
-						target.unbind("click");
-						target.find(".msg-failed-tip").remove();
-						target.find(".msg-clear").remove();
-						chatAjax.setRecentMsg(text, data);
-					}
-				});
+				console.log("不提供发送临时消息功能")
 			}
 			$(".panel-msg .bd").scrollTop($(".msg-wrap").outerHeight() - $(
 				".panel-msg .bd").height());

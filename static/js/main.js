@@ -159,6 +159,8 @@ var update_status = function(obj) {
 	}
 }
 
+var poll = require(["poll"]);
+
 DDstorage.remove("groupdidload");
 DDstorage.remove("contactlistload");
 // 默认最先查询群列表（以便支持最近联系人群信息显示）

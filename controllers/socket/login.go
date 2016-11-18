@@ -14,7 +14,7 @@ func (s *Server) onLogin(so socketio.Socket) {
 	so.On("login auth", func(username, password string) string {
 		log.Infof("username:%v, password:%v", username, password)
 
-		c := candy.NewCandyClient("WEB", "127.0.0.1:9000", &cmdClient{})
+		c := candy.NewCandyClient("WEB", "127.0.0.1:9000", s)
 		if err := c.Start(); err != nil {
 			log.Errorf("start client error:%s", err.Error())
 			return err.Error()
@@ -28,6 +28,7 @@ func (s *Server) onLogin(so socketio.Socket) {
 		}
 
 		addClient(id, c)
+		WebClients[id] = so
 
 		return candy.NewData(0, "login success", fmt.Sprintf("%v", id)).Error()
 	})

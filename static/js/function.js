@@ -9,6 +9,10 @@ function checkData(data) {
 }
 
 function checkResult(data) {
+    if (data == undefined) {
+        return "";
+    }
+
     var obj = eval('(' + data + ')');
     var result = "";
     switch (obj.Code) {
