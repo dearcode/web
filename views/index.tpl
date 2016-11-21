@@ -255,11 +255,8 @@
                 <img class="idcard-img" src="/static/img/img-avatar.png" class="" />
                 <ul>
                     <li><strong class="idcard-name">无</strong></li>
-                    <li class="idcard-phone">无</li>
-                    <li class="idcard-tel"></li>
-                    <li class="idcard-email">无</li>
-                    <li class="idcard-pos">无</li>
-                    <li class="idcard-orgname">无</li>
+                    <li class="idcard-nickname">无</li>
+                    <li class="idcard-signature"></li>
                 </ul>
             </div>
             <div class="pop-bottom">

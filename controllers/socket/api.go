@@ -62,6 +62,8 @@ func (s *Server) Post() {
 		s.batchContactStatus(aid, uid)
 	case "setSignature":
 		s.setSignature(aid, uid)
+	case "setNickName":
+		s.setNickName(aid, uid)
 	case "getContactList":
 		s.getContactList(aid, uid)
 	case "messageChat":
@@ -183,7 +185,43 @@ func (s *Server) batchContactStatus(aid string, uid int64) {
 func (s *Server) setSignature(aid string, uid int64) {
 	signature := s.GetString("signature")
 	log.Debugf("signature:%v", signature)
+	c, err := getClient(uid)
+	if err != nil {
+		log.Errorf("%v", err)
+		s.Response(util.Error(util.ErrSessionTimeout, "session timeout"))
+		return
+	}
+
+	err = c.UpdateUserSignature(aid, signature)
+	if err != nil {
+		log.Errorf("%v", err)
+		s.Response(util.Error(util.ErrUpdateSignature, "update signature error"))
+		return
+	}
+
 	s.Response("{\"Code\":0}")
+}
+
+// setNickName 设置昵称
+func (s *Server) setNickName(aid string, uid int64) {
+	nickName := s.GetString("nickname")
+	log.Debugf("nickName:%v", nickName)
+
+	c, err := getClient(uid)
+	if err != nil {
+		log.Errorf("%v", err)
+		s.Response(util.Error(util.ErrSessionTimeout, "session timeout"))
+		return
+	}
+
+	err = c.UpdateUserInfo(aid, nickName, "")
+	if err != nil {
+		log.Errorf("%v", err)
+		s.Response(util.Error(util.ErrUpdateUserInfo, "update userinfo error"))
+		return
+	}
+
+	s.Response("{\"Code\": 0}")
 }
 
 // getContactList 获取好友列表
@@ -317,8 +355,6 @@ func (s *Server) offlineMessageGet(aid string, uid int64) {
 		s.Response(util.Error(util.ErrSendMsg, err.Error()))
 		return
 	}
-
-	log.Debugf("msgs:%v", msgs)
 
 	mlist, err := meta.ParsePushMessageList([]byte(msgs))
 	if err != nil {

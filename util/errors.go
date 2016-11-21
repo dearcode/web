@@ -32,4 +32,10 @@ const (
 	ErrSendMsg = 5011
 	// ErrPushMessage
 	ErrPushMessage = 5012
+	// ErrUpdateSignature
+	ErrUpdateSignature = 5013
+	// ErrUpdateUserInfo
+	ErrUpdateUserInfo = 5014
+	// ErrDecodeString
+	ErrDecodeString = 5015
 )

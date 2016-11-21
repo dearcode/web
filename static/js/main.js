@@ -729,8 +729,9 @@ $(document.body).delegate('.panel-msg .title .i', 'click', function() {
 	}
 }).init();
 
+
+require(['facebox']);
 /*
-require(['facebox', 'team', 'screenshot', 'jcrop', 'avatar', 'notification']);
 // 表情
 require(["expression"], function() {
 			$("#expression").jdExpression({
