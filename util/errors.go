@@ -38,4 +38,6 @@ const (
 	ErrUpdateUserInfo = 5014
 	// ErrDecodeString
 	ErrDecodeString = 5015
+	// ErrLogout
+	ErrLogout = 5016
 )

@@ -27,7 +27,7 @@
                 </li>
                 <li class="user-nick">
                     <strong></strong>
-                    <span id="user_state" class="i i-on" title="点击切换状态"></span>
+                    <span id="user_state" class="i i-on" title=""></span>
                     <ul id="user_state_select" class="drop-menu <!--show-->">
                         <li stateValue="chat"><span class="i i-on"></span>在线</li>
                         <li stateValue="busy"><span class="i i-busy"></span>忙碌</li>
@@ -41,7 +41,6 @@
                         <li id="user_sound_set"><span class="i i-sd-sound"></span><span id="user_sound_text">关闭声音</span></li>
                         <li id="user_dest_set"><span class="i i-desk-remind"></span><span id="user_desk_text">关闭通知</span></li>
                         <li id="user_info"><span class="i i-user-info"></span><span>个人资料</span></li>
-                        <li id="user_suggest_set"><span class="i i-suggest"></span>意见反馈</li>
                         <li id="user_login_out"><span class="i i-quite"></span>退出</li>
                     </ul>
                 </li>

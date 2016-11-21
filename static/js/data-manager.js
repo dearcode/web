@@ -210,14 +210,14 @@ var delete_friend_label = function(labelId, suc, error) {
 	data_ajax(suc, error, defaults);
 };
 
-/** 设置用户状态 */
-var update_user_presence = function(presence, action, suc, error) {
+/** 退出登陆 */
+var userlogout = function(suc, error) {
 	var defaults = {
 		"aid": cookie("aid"),
 		"from": cookie("uid"),
-		"ptype": "presence"
+		"ptype": "logout"
 	};
-	data_ajax(suc, error, defaults);
+	data_ajax(suc, error, defaults, 1);
 };
 
 /* 查询群列表 */

@@ -70,6 +70,8 @@ func (s *Server) Post() {
 		s.messageChat(aid, uid)
 	case "offLineMessageGet":
 		s.offlineMessageGet(aid, uid)
+	case "logout":
+		s.logout(aid, uid)
 	default:
 		log.Errorf("unknow post type:%v", ptype)
 	}
@@ -371,4 +373,22 @@ func (s *Server) offlineMessageGet(aid string, uid int64) {
 	}
 
 	s.Response(fmt.Sprintf("{\"Code\": 0, \"Body\":%v}", string(data)))
+}
+
+func (s *Server) logout(aid string, uid int64) {
+	c, err := getClient(uid)
+	if err != nil {
+		log.Errorf("%v", err)
+		s.Response(util.Error(util.ErrSessionTimeout, "session timeout"))
+		return
+	}
+
+	err = c.Logout()
+	if err != nil {
+		log.Errorf("%v", err)
+		s.Response(util.Error(util.ErrLogout, err.Error()))
+		return
+	}
+
+	s.Response(fmt.Sprintf("{\"Code\": 0}"))
 }

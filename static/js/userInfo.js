@@ -7,11 +7,9 @@ require(["util"], function(util) {
             $(document).click(function() {
                 notification.requestPermission(
                     function() {
-                        util.cookie(
-                            "isOpenDesk",
-                            "1", {
-                                expires: 30
-                            });
+                        util.cookie("isOpenDesk", "1", {
+                            expires: 30
+                        });
                     });
             });
             if (!notification.isSupported()) {
@@ -33,11 +31,11 @@ require(["util"], function(util) {
             var uid = util.cookie("uid");
             get_contact_status(uid, function(data) {
                 if (data.Status != "off") {
-                    $("#user_state").attr("class", data.Status == "chat" ? "i i-on" : get_status_class(data
-                        .Status));
+                    $("#user_state").attr("class",
+                        data.Status == "chat" ? "i i-on" : get_status_class(data.Status));
                 } else {
                     //重新登录
-                    //update_user_presence("off","off",loginOutSuccess,loginOutFail);
+                    userlogout(loginOutSuccess, loginOutFail);
                 }
             });
         });
@@ -108,54 +106,6 @@ require(["util"], function(util) {
         });
         /***修改签名结束**/
 
-        /***修改出席状态开始**/
-        //修改用户出席状态
-        $("body").bind("click", function(ele) {
-            //点击修改状态
-            if ($(ele.target).attr("id") != "user_state") {
-                $("#user_state_select").removeClass("show");
-            }
-            //点击修改设置
-            if ($(ele.target).attr("id") != "user_set") {
-                $("#user_set_select").removeClass("show");
-                $("#timline-setting").hide();
-            }
-        });
-        $("#user_state").bind("click", function() {
-            if ($("#user_state_select").hasClass("show")) {
-                $("#user_state_select").removeClass("show");
-            } else {
-                $("#user_state_select").addClass("show");
-            }
-        });
-        $("#user_state_select li").bind("click", function() {
-            var dom = this;
-            var classValue = $(this).find("span").attr("class");
-            require(["util"], function(util) {
-                var uid = util.cookie("uid");
-                var aid = util.cookie("aid");
-                var stateValue = $(dom).attr("stateValue");
-                var obj = new Object();
-                obj.body = new Object();
-                obj.body.presence = stateValue;
-                obj.body.action = "chg";
-                obj.body.clientType = "web";
-                obj.version = version;
-                obj.aid = aid;
-                obj.type = "presence";
-                obj.from = uid;
-                var str = JSON.stringify(obj);
-                var url = "/api.action?webJson=" + str;
-                /*先注释掉guowei
-                $.getJSON(url,function(data) {//成功返回即可
-                    $("#user_state").attr("class",classValue);
-                    $("#user_state_select").removeClass("show");
-                });
-                */
-            });
-        });
-        /***修改出席状态结束**/
-
         /**设置开始  登录，关闭声音等*/
         $("#user_set").bind("click", function() {
             if ($("#user_set_select").hasClass("show")) {
@@ -170,7 +120,7 @@ require(["util"], function(util) {
         $("#user_login_out").bind("click", function() {
             var util = require("util");
             util.confirm("确定", "您确定要退出Candy网页版吗？", function() {
-                update_user_presence("off", "off", loginOutSuccess, loginOutFail);
+                userlogout(loginOutSuccess, loginOutFail);
             });
         });
 
@@ -354,38 +304,6 @@ require(["util"], function(util) {
     });
 });
 
-function suggestionSend(ele) {
-    //var text = $("#suggestion_feedback_input").val();
-    var text = $(ele).parents(".pop-bottom").siblings(".pop-content").find("textarea").val();
-    require(["util"], function(util) {
-        if (text) {
-            //长度不大于200
-            text = text.trim();
-            if (text.length > 200) {
-                util.alert("意见反馈", "意见反馈字数不能超过200个字！", suggestionConfirm, suggestionCanle);
-                return;
-            } else {
-                var uid = util.cookie("uid");
-                var token = 'F50DBAB515286F4C88D44CADE0819334829C15F60D859F43';
-                var adviceClient = {
-                    "advicePin": uid,
-                    "adviceContent": text,
-                    "from": 54,
-                    "adviceContentText": "来自企业版网页的意见反馈"
-                };
-                var url = "http://candy.dearcode.net/client_advice/clientAdvice.action?token=" +
-                    token + "&adviceClient=" + JSON.stringify(adviceClient) + "&callback=?";
-                $.getJSON(url, function(data) {
-                    //保存意见,由于返回的是json,不是jsonp,默认成功
-                });
-                jQuery(document).trigger('close.facebox');
-            }
-        } else {
-            $(ele).parents(".pop-bottom").siblings(".pop-content").find("p").find("span").html("（请输入您的反馈信息！）");
-        }
-    });
-}
-
 function signatureConfirm() {
     $("#panel-user-signature-input").removeClass("show");
 }
@@ -429,49 +347,3 @@ function loginOutFail(data) {
         window.location.href = "/login";
     });
 }
-
-/**
- * get方式请求
- * @param url
- * @param callback
- */
-function imGetRequest(url, callback) {
-    $.getJSON(url, function(data) {
-        callback(data);
-    });
-}
-
-/**
- * post方式请求
- * @param url
- * @param data
- * @param callback
- */
-function imPostRequest(url, data, callback) {
-    $.ajax({
-        type: 'post',
-        dataType: 'json',
-        url: url,
-        data: data,
-        success: function(data) {
-            callback(data);
-        }
-    });
-}
-
-function getStyleByStatus(status) {
-    if (status == "chat") {
-        return "i i-on";
-    } else if (status == "busy") {
-        return "i i-busy";
-    } else if (status == "away") {
-        return "i i-left";
-    } else if (status == "dnd") {
-        return "i i-nodisturb";
-    } else if (status == "hide") {
-        return "i i-hide";
-    } else if (status == "off") {
-        return "";
-    }
-    return "";
-};
