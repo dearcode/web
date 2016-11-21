@@ -16,11 +16,11 @@
                 <div class="col-sm-6 col-sm-offset-3 form-box">
                     <div class="form-top">
                         <div class="form-top-left">
-                            <h3>用户登陆</h3>
+                            <h2>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                用心沟通世界
+                            </h2>
                             <div id="result" class="result"></div>
-                        </div>
-                        <div class="form-top-right">
-                            <i class="fa fa-key"></i>
                         </div>
                     </div>
                     <div class="form-bottom">
@@ -34,16 +34,15 @@
                                 <input type="password" name="password" placeholder="密码..." class="form-password form-control" id="password">
                             </div>
                             <button type="submit" class="btn">登陆</button>
-                        </form>
-                        <div class="link">
-                            <a href="register">注册</a>
-                        </div>
+                            <button class="btn" onclick="location='register'">注册</button>
+                        </form>                    
                     </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
+<script src="/static/js/nest.js"></script>
 <script>
 $('form').submit(function(){
    var socket = io();

@@ -2108,9 +2108,8 @@ body.login {
 .login-form {
   float: right;
   width: 350px;
-  margin-top: 90px;
-  background: #ffffff url(/static/img/login-words.png) no-repeat bottom center;
-  height: 410px;
+  margin-top: 5px;
+  height: 310px;
   border-radius: 10px;
   border: 1px solid  #abbccb;
   position: relative;
