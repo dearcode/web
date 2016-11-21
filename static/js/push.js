@@ -218,80 +218,41 @@ define(function(require, exports, module) {
 
 	function parseChat(msg, offline) {
 		var conver = $(".panel-view").attr("conver"),
-			userinfo, from, gid, content, len;
+			userinfo, from, content, len;
 		if (msg.Body) {
 			content = msg.Body;
 		}
 		from = msg.From;
-		var f = msgBean.from.toLowerCase();
-		var t = msgBean.to;
+		var f = msg.From.toLowerCase();
+		var t = msg.To;
 		var u = uid.toLowerCase();
-		if (!$.isNumeric(t) && f != u && msgBean.type != 'message_notice' && t.toLowerCase() !=
-			u) {
-			errorReport(msgBean, offline ? "offline" : "");
-			return;
-		}
-		if (msgBean.body && msgBean.body.gid) {
-			gid = msgBean.body.gid;
-		}
-
-		//已经存在的全局消息(协议id)不再显示
-		var l = $(".msg-wrap .msg[msgid='" + msgBean.id + "']").length;
-		if (l > 0) {
-			return;
-		}
 
 		//已经存在的消息(mid唯一)不再显示
-		len = $(".msg-wrap .msg[mid='" + msgBean.body.mid + "']").length;
+		len = $(".msg-wrap .msg[mid='" + msg.ID + "']").length;
 		if (len > 0) {
 			return;
 		}
 
 		if (t != conver && from != conver) {
-			if (isInUnread(msgBean)) {
+			if (isInUnread(msg)) {
 				return;
 			}
 		}
 		//显示左侧消息
-		showLeftMsg(msgBean);
-		msgBean.body.content = content;
+		showLeftMsg(msg);
 
-		if (!gid) {
-			if (msgBean.type == "message_notice") {
-				userinfo = noticeInfo(msgBean);
-			} else {
-				userinfo = getUserInfo(from);
-			}
-
+		if (msg.Event != 0) {
+			userinfo = noticeInfo(msg);
 		} else {
 			userinfo = getUserInfo(from);
 		}
+
 		//需要显示消息
-		if ((conver == from && !gid) || (conver == gid && gid) || (msgBean.type ==
-				"message_notice" && conver == msgBean.body.source) || (conver == t &&
-				msgBean.from == uid)) {
-			showMsg(msgBean, userinfo, true);
-			if (conver == gid) {
-				readMsg(conver, msgBean.kind, $(".panel-view").attr("kind"), msgBean.body
-					.mid);
-			} else {
-				readMsg(msgBean.from, msgBean.kind, "", msgBean.body.mid);
-			}
+		saveUnReadMsg(msg);
 
-		} else {
-			saveUnReadMsg(msgBean);
-		}
-		msgBean.body.content = content;
 		//保存消息记录
-		saveHistory(msgBean);
-		//显示未读消息数目
-		if (msgBean.from != uid) {
-			msgCounter();
+		saveHistory(msg);
 
-			if (util.cookie('isOpenSound') == 1) {
-				$.publish('soundPlay');
-			}
-		}
 	}
 
 	//离线消息
@@ -315,30 +276,15 @@ define(function(require, exports, module) {
 
 	//显示左边最近联系人列表中的消息
 	function showLeftMsg(msg) {
-		var gid, from, info;
-		from = msg.from;
+		var from, info;
+		from = msg.From;
 		if (from == uid) {
-			from = msg.to;
+			from = msg.To;
 		}
-		if (msg.body.gid) {
-			gid = msg.body.gid;
-		}
+
 		var userinfo;
-		if (msg.type == "message_notice") {
-			userinfo = noticeInfo(msg);
-		} else {
-			userinfo = getUserInfo(from);
-		}
-		if (!gid) {
-			if (msg.type == "message_notice") {
-				showNoticeLeft(msg, userinfo);
-			} else {
-				showUserLeft(msg, userinfo);
-			}
-		} else {
-			info = DDstorage.get(gid + "info");
-			showGroupLeft(msg, info, userinfo);
-		}
+		userinfo = getUserInfo(from);
+		showUserLeft(msg, userinfo);
 	}
 
 	function showGroupLeft(msg, info, userinfo) {
@@ -370,62 +316,64 @@ define(function(require, exports, module) {
 	}
 
 	function showUserLeft(msg, info) {
-		var from = msg.from;
-		if (msg.from == uid) {
-			from = msg.to;
+		var from = msg.From;
+		if (msg.From == uid) {
+			from = msg.To;
 		}
-		if (!info || !info.uid) {
+
+		if (!info || !info.ID) {
 			get_user_info(from, function(json) {
-				if (json && json.code == 1) {
-					info = json.body;
+				if (json) {
+					info = json;
 					DDstorage.set(from, info);
 					showUserLeft(msg, info);
 				}
 			});
 		} else {
-			notify(msg, info);
-			if (msg.from == uid) {
-				from = msg.to;
+			//notify(msg, info);
+			if (msg.From == uid) {
+				from = msg.To;
 			}
-			buildRecentView("customer", from, info.avatar, info.realname || from, msg);
+			buildRecentView("customer", from, info.Avatar, info.NickName || info.Name,
+				msg);
+
+			showMsg(msg, info);
 		}
+
 	}
 
 	function showNoticeLeft(msg, info) {
 		notify(msg, info);
-		buildRecentView("system", info.uid, info.avatar, info.realname, msg);
+		buildRecentView("system", info.ID, info.Avatar, info.NickName || info.Name,
+			msg);
 	}
 
 	//左侧消息
 	function buildRecentView(kind, conver, avatar, name, msg) {
 		var target = util.recentContactDom(conver);
 		var html = '<li kind="" id="" conver="" class="rc-item"><div class="l">' +
-			'<img alt="" src="./img/team-avatar.png"><span class="i"></span></div><div class="m">' +
+			'<img alt="" src="/static/img/team-avatar.png"><span class="i"></span></div><div class="m">' +
 			'<div class="nickname"><span class="i i-on"></span></div><div class="rc-msg wto"></div></div><div class="r"></div></li>';
 		if (target.length == 0) {
 			target = $(html);
 		}
+
 		target.attr("kind", kind).attr("conver", conver).attr("id",
 			"recent-contact-" + conver);
 
-		if (kind == "temp_group") {
-			target.find("img").attr("src", "./img/mainchat-avatar.png");
-		} else if (kind == "discussion_group") {
-			target.find("img").attr("src", "./img/team-avatar.png");
-		} else if (kind == "customer") {
+		if (kind == "customer") {
 			if (avatar) {
 				target.find("img").attr("src", avatar);
 			} else {
-				target.find("img").attr("src", "./img/img-avatar.png");
+				target.find("img").attr("src", "/static/img/img-avatar.png");
 			}
-		} else if (kind == "system") {
-			target.find("img").attr("src", avatar);
 		}
+
 		target.find(".nickname").text(name);
-		target.find(".r").html(util.formatDate(new Date(msg.body.datetime),
+		target.find(".r").html(util.formatDate(new Date(msg.CreateTime),
 			"HH:mm:ss"));
 		target.find(".wto").text(filterMsgForLeft(msg));
-		if ($(".panel-view").attr("conver") != conver && msg.from != uid) {
+		if ($(".panel-view").attr("conver") != conver && msg.From != uid) {
 			var unread = target.find(".l").find(".i").text();
 			if (unread != "") {
 				unread = parseInt(unread) + 1;
@@ -439,31 +387,17 @@ define(function(require, exports, module) {
 
 	function filterMsgForLeft(msg) {
 		var html = "";
-		if (msg && msg.body && msg.body.content) {
-			html = msg.body.content;
+		if (msg && msg.Body) {
+			html = msg.Body;
 			try {
 				var tmp = $("<div></div>").html(util.filterMsg(html));
 				if (tmp.find("img").length > 0) {
 					html = "[图片]" + tmp.text();
 				}
-				if (tmp.find("a[rel='send-file']").length > 0) {
-					html = "[文件]";
-				}
+
 				if ($.fn.jdExpression.replaceName(html) != html) {
 					tmp = $("<div></div>").html($.fn.jdExpression.replaceName(html));
 					html = "[表情]" + tmp.text();
-				}
-				if (html == "#A_振动") {
-					html = "[震屏]";
-				}
-				if (msg.type == "message_file") {
-					html = "[文件]";
-				}
-				if (msg.body.kind == "voice") {
-					html = "[语音]"
-				}
-				if (msg.body.mode == 1001) {
-					html = "[名片]";
 				}
 			} catch (e) {
 				console.log(e.stack || e.message || e);
@@ -537,27 +471,22 @@ define(function(require, exports, module) {
 	}
 
 	//保存消息记录
-	function saveHistory(msgBean) {
+	function saveHistory(msg) {
 		var history, key;
-		if (msgBean.body.gid) {
-			key = "chat_recentmsg_" + uid + "_" + msgBean.body.gid;
+		if (msg.From != uid) {
+			key = "chat_recentmsg_" + uid + "_" + msg.From;
 		} else {
-			if (msgBean.type == "message_notice") {
-				key = "chat_recentmsg_" + uid + "_" + msgBean.body.source;
-			} else {
-				key = "chat_recentmsg_" + uid + "_" + msgBean.from;
-			}
+			key = "chat_recentmsg_" + uid + "_" + msg.To;
 		}
-		if (msgBean.from == uid && !msgBean.body.gid) {
-			key = "chat_recentmsg_" + uid + "_" + msgBean.to;
-		}
+
 		history = DDstorage.get(key);
 		if ($.isArray(history)) {
-			history.unshift(msgBean);
+			history.unshift(msg);
 		} else {
-			history = [msgBean];
+			history = [msg];
 		}
-		if (msgBean.type == "message_notice") {
+
+		if (msg.Event == 0) {
 			DDstorage.set(key, history, 1);
 		} else {
 			DDstorage.set(key, history);
@@ -565,44 +494,35 @@ define(function(require, exports, module) {
 	}
 
 	//保存未读消息
-	function saveUnReadMsg(msgBean) {
+	function saveUnReadMsg(msg) {
 		var unread, key;
-		if (msgBean.body.gid) {
-			key = "chat_unreadmsg_" + uid + "_" + msgBean.body.gid;
+		if (msg.From != uid) {
+			key = "chat_unreadmsg_" + uid + "_" + msg.From;
 		} else {
-			if (msgBean.type == "message_notice") {
-				key = "chat_unreadmsg_" + uid + "_" + msgBean.body.source;
-			} else {
-				key = "chat_unreadmsg_" + uid + "_" + msgBean.from;
-			}
+			key = "chat_unreadmsg_" + uid + "_" + msg.To;
 		}
 
-		if (msgBean.from == uid && !msgBean.body.gid) {
-			key = "chat_unreadmsg_" + uid + "_" + msgBean.to;
-		}
 		unread = DDstorage.get(key);
 		if ($.isArray(unread)) {
-			unread.push(msgBean);
+			unread.push(msg);
 		} else {
-			unread = [msgBean];
+			unread = [msg];
 		}
 		DDstorage.set(key, unread);
 	}
 
-	function isInUnread(msgBean) {
+	function isInUnread(msg) {
 		var unread, key;
-		if (msgBean.body.gid) {
-			key = "chat_unreadmsg_" + uid + "_" + msgBean.body.gid;
-		} else {
-			key = "chat_unreadmsg_" + uid + "_" + msgBean.from;
-		}
+		key = "chat_unreadmsg_" + uid + "_" + msg.From;
+
 		unread = DDstorage.get(key);
 		if (!unread) {
 			return false;
 		}
+
 		for (var i = 0; i < unread.length; i++) {
-			var msg = unread[i];
-			if (msg.body.mid == msgBean.body.mid) {
+			var m = unread[i];
+			if (m.ID == msg.ID) {
 				return true;
 			}
 		}
@@ -612,81 +532,50 @@ define(function(require, exports, module) {
 	//显示消息
 	function showMsg(msg, userInfo, confirm) {
 		if (!userInfo) {
-			get_user_info(msg.from, function(json) {
-				if (json.code == 1) {
-					DDstorage.set(msg.from, json.body);
-					showMsg(msg, json.body, confirm);
-				} else {
-					//获取用户资料失败
-					var data = {};
-					data.realname = msg.from;
-					data.uid = msg.from;
-					showMsg(msg, data, confirm);
+			get_user_info(msg.From, function(json) {
+				if (json) {
+					DDstorage.set(msg.From, json);
+					showMsg(msg, json, confirm);
 				}
-			}, function() {
-				var data = {};
-				data.realname = msg.from;
-				data.uid = msg.from;
-				showMsg(msg, data, confirm);
 			});
 		} else {
-			if (msg.from != userInfo.uid) {
+			if (msg.From != userInfo.ID) {
 				console.log("--------------------------error\n" + msg + "\n" + userInfo +
 					"\n-------------------------------------");
 				var errorMsg = "get message=" + JSON.stringify(msg) + ", userInfo=" +
 					JSON.stringify(userInfo);
 				errorReport(errorMsg);
-				userInfo.uid = msg.from;
-				userInfo.realname = msg.from;
-
+				userInfo.ID = msg.From;
 			}
 
 			//判断最后一条消息是否超出可视范围
-			var isMsgOutOfWrap = showMsgOutOfWrap(msg, userInfo);
+			//var isMsgOutOfWrap = showMsgOutOfWrap(msg, userInfo);
 
 			var jdom = buildContent(msg),
 				lastTime, info;
 			timeline(msg);
-			if (msg.body.kind != 'voice') {
-				filterMsg(msg, userInfo);
+			filterMsg(msg, userInfo);
+
+			var content = msg.Body;
+			jdom.find(".msg-cont").html(content);
+
+			if (userInfo.Avatar) {
+				jdom.find(".msg-avatar").find("img").attr("src", userInfo.Avatar);
 			}
 
-			if (msg.body.mode == 1001) {
-				var card = buildCardMsg(msg);
-				if (card) {
-					jdom.find(".msg-cont").html(card);
-				} else {
-					return;
-				}
-			} else {
-				var content = msg.body.content;
-				if (msg.body.url && msg.type == "message_notice") {
-					content += "&nbsp;&nbsp;&gt;&gt;<a href='" + msg.body.url +
-						"' target='_blank'>点击这里查看详情</a>"
-				}
-				if (msg.body.pic && msg.type == "message_notice") {
-					content += "<div><a rel='gallery' href='" + msg.body.pic +
-						"'><img src='" + msg.body.pic +
-						"' style='max-width:320px;' class='message-img'></a></div>"
-				}
-				jdom.find(".msg-cont").html(content);
-			}
-			if (userInfo.avatar) {
-				jdom.find(".msg-avatar").find("img").attr("src", userInfo.avatar);
-			}
-			jdom.find(".msg-avatar").find("p").text(userInfo.realname || userInfo.uid);
-			jdom.attr("time", msg.body.datetime);
-			jdom.attr("mid", msg.body.mid);
+			jdom.find(".msg-avatar").find("p").text(userInfo.NickName || userInfo.Name);
+			jdom.attr("time", msg.CreateTime);
+			jdom.attr("mid", msg.ID);
 			if (msg.id) {
-				jdom.attr("msgid", msg.id);
+				jdom.attr("msgid", msg.ID);
 			}
 
 			jdom.appendTo(".msg-wrap");
 			if (msg.body.mode >= 0) {
-				jdom.find(".msg-cont").addClass("mode" + msg.body.mode);
+				jdom.find(".msg-cont").addClass("mode" + 1);
 			}
 			//其他处理
-			if (isMsgOutOfWrap) {
+			if ( /*isMsgOutOfWrap*/ true) {
 				//do nothing
 			} else {
 				$(".panel-msg .bd").scrollTop($(".msg-wrap").outerHeight() - $(
@@ -698,34 +587,19 @@ define(function(require, exports, module) {
 			}
 
 			//事件绑定
-			jdom.find(".msg-avatar").find("img").attr("data-uid", userInfo.uid).css(
+			jdom.find(".msg-avatar").find("img").attr("data-uid", userInfo.ID).css(
 				"cursor", "pointer");
-			bindMsgEvent(1);
 		}
 	}
 
 	function filterMsg(msg, userInfo) {
 		var content;
-		if (msg.type == "message_file") {
-			return;
-		}
-		if (msg.body && msg.body.content) {
-			content = util.filterMsg(msg.body.content, true, true).replace(/\n/g,
+		if (msg.Body) {
+			content = util.filterMsg(msg.Body, true, true).replace(/\n/g,
 				"<br />");
-			if (content == "#A_振动") {
-				content = (userInfo.realname || userInfo.uid) + "向您发送了一个震屏";
-			}
-			if (msg.body.mode == 5) {
-				content = (userInfo.realname || userInfo.uid) + "取消了接收文件“" + msg.body.content +
-					"”";
-			}
-			if (msg.body.mode == 7) {
-				content = (userInfo.realname || userInfo.uid) + "接收了文件“" + msg.body.content +
-					"”";
-			}
-			msg.body.content = content;
-		}
 
+			msg.Body = content;
+		}
 	}
 
 	/**
@@ -769,34 +643,33 @@ define(function(require, exports, module) {
 	}
 
 	//显示时间线
-	function timeline(msgBean, history) {
+	function timeline(msg, history) {
 		var lastTime = $(".msg-wrap .msg:last").attr("time"),
 			jdom, time, diff = 0;
-		if (!msgBean) {
+		if (!msg) {
 			return;
 		}
-		if (!msgBean.body && msgBean.message) {
-			msgBean.body = msgBean.message;
-		}
+
 		if (!lastTime) {
 			lastTime = new Date().getTime();
 		}
 		if (!$.isNumeric(lastTime)) {
 			lastTime = util.parseDate(lastTime);
 		}
-		diff = Math.abs(lastTime - msgBean.body.datetime);
+
+		diff = Math.abs(lastTime - msg.CreateTime);
 		if (diff > 120000 && diff < 1000 * 60 * 60 * 24) {
-			if ($.isNumeric(msgBean.body.datetime)) {
-				time = util.formatDate(new Date(msgBean.body.datetime), "HH:mm");
+			if ($.isNumeric(msg.CreateTime)) {
+				time = util.formatDate(new Date(msg.CreateTime), "HH:mm");
 			} else {
-				time = util.formatDate(util.parseDate(msgBean.body.datetime), "HH:mm");
+				time = util.formatDate(util.parseDate(msg.CreateTime), "HH:mm");
 			}
 		} else if (diff > 1000 * 60 * 60 * 24) {
-			if ($.isNumeric(msgBean.body.datetime)) {
-				time = util.formatDate(new Date(msgBean.body.datetime),
+			if ($.isNumeric(msg.CreateTime)) {
+				time = util.formatDate(new Date(msg.CreateTime),
 					"yyyy-MM-dd HH:mm:ss");
 			} else {
-				time = util.formatDate(util.parseDate(msgBean.body.datetime),
+				time = util.formatDate(util.parseDate(msg.CreateTime),
 					"yyyy-MM-dd HH:mm:ss");
 			}
 		}
@@ -875,10 +748,10 @@ define(function(require, exports, module) {
 
 	function buildContent(msg) {
 		var sContent =
-			'<div class="msg msg-other" time="" mid=""><div class="msg-avatar"><img src="./img/img-avatar.png"><p></p></div><div class="msg-cont"></div></div>';
-		if (msg.from == uid) {
+			'<div class="msg msg-other" time="" mid=""><div class="msg-avatar"><img src="/static/img/img-avatar.png"><p></p></div><div class="msg-cont"></div></div>';
+		if (msg.From == uid) {
 			sContent =
-				'<div class="msg msg-self" time="" mid=""><div class="msg-avatar"><img src="./img/img-avatar.png"><p></p></div><div class="msg-cont"></div></div>';
+				'<div class="msg msg-self" time="" mid=""><div class="msg-avatar"><img src="/static/img/img-avatar.png"><p></p></div><div class="msg-cont"></div></div>';
 		}
 		return $(sContent);
 	}

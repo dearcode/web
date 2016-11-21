@@ -12,18 +12,6 @@ require.config({
 	waitSeconds: 15
 });
 
-//初始化全局socket
-/*var socket = io();
-var COOKIE_NAME = 'sessionid';
-socket.emit('main session', $.cookie(COOKIE_NAME), function(data) {
-	result = checkResult(data);
-	if (result != "成功") {
-		window.location.href="/login";
-		return;
-	}
-	alert(data);
-});
-*/
 var contactStatusWorker = setInterval(function() {
 	if (offline) {
 		clearInterval(contactStatusWorker);
@@ -222,135 +210,122 @@ DDstorage.remove("contactlistload");
 }
 */
 
-/*最近联系人
+//最近联系人
 var get_recent_contact_re = function() {
 	get_recent_contact(function(data) {
-        var arr = data.body.contacts;
-        preGetRecentContactSuccCallback(arr);
+		var arr = data.Contacts;
+		preGetRecentContactSuccCallback(arr);
 		$(".loading").removeClass("show");
-		var arr = data.body.contacts, list = DDstorage.get("system_user_list");
-		if (!((arr && arr.length > 0 )|| (list && list.length > 0))) {
-            require(["poll"], function(pollReq) {
-                pollReq.poll();
-            });
+		var arr = data.Contacts,
+			list = DDstorage.get("system_user_list");
+		if (!((arr && arr.length > 0) || (list && list.length > 0))) {
+			require(["poll"], function(pollReq) {
+
+			});
 			$(".loading").removeClass("show");
 			return;
 		}
 		arr.sort(function(a, b) {
-					var inputDatea = new Date(a.datetime.replace(/-/g, "/"));
-					var inputDateb = new Date(b.datetime.replace(/-/g, "/"));
-					return inputDateb.getTime() - inputDatea.getTime();
-				});
+			var inputDatea = new Date(a.datetime.replace(/-/g, "/"));
+			var inputDateb = new Date(b.datetime.replace(/-/g, "/"));
+			return inputDateb.getTime() - inputDatea.getTime();
+		});
 		var str = "";
-        if(list && list.length > 0) {
-            for(var j=0; j<list.length; j++) {
-                var key = list[j];
-                var info = DDstorage.get(key);
-                str += '<li class="rc-item" conver="'
-                    + info.uid
-                    + '" kind="system" id="recent-contact-'
-                    + info.uid
-                    + '"><div class="l"><img src="'+info.avatar+'" alt=""/>'
-                    + '<span class="i ui-hide"></span></div><div class="m"><div class="nickname"><span>'
-                    + info.realname
-                    + '</span><i class="offline-text"></i><span class=""></span></div><div class="rc-msg wto"></div></div>'
-                    + '<div class="r"></div></li>';
-            }
-        }
-		if(arr) {
-            for (var i in arr) {
-                var obj = arr[i], time = null, now = new Date();
-                var inputDate = new Date(obj.datetime.replace(/-/g, "/"));
-                if (new Date(now.getFullYear() + "/" + (now.getMonth() + 1) + "/" + now.getDate()).getTime()
-                    - inputDate.getTime() > 0) {
-                    time = obj.datetime.substring(5, 10);
-                } else {
-                    time = obj.datetime.substring(10, 19);
-                }
-                if(time.indexOf("NaN") >= 0) {
-                    time = "";
-                }
-                str += '<li class="rc-item" conver="'
-                    + obj.id
-                    + '" kind="'
-                    + (obj.kind == "group" ? obj.groupKind : obj.kind)
-                    + '" id="recent-contact-'
-                    + obj.id
-                    + '"><div class="l"><img src="./img/img-avatar.png" alt=""/>'
-                    + '<span class="i ui-hide"></span></div><div class="m"><div class="nickname"><span>'
-                    + obj.id
-                    + '</span><i class="offline-text"></i><span class=""></span></div><div class="rc-msg wto"></div></div>'
-                    + '<div class="r">' + time + '</div></li>';
-            }
-        }
+		if (list && list.length > 0) {
+			for (var j = 0; j < list.length; j++) {
+				var key = list[j];
+				var info = DDstorage.get(key);
+				str += '<li class="rc-item" conver="' + info.ID +
+					'" kind="system" id="recent-contact-' + info.ID +
+					'"><div class="l"><img src="' + info.Avatar + '" alt=""/>' +
+					'<span class="i ui-hide"></span></div><div class="m"><div class="nickname"><span>' +
+					info.NickName || info.Name +
+					'</span><i class="offline-text"></i><span class=""></span></div><div class="rc-msg wto"></div></div>' +
+					'<div class="r"></div></li>';
+			}
+		}
+
+		if (arr) {
+			for (var i in arr) {
+				var obj = arr[i],
+					time = null,
+					now = new Date();
+				var inputDate = new Date(obj.datetime.replace(/-/g, "/"));
+				if (new Date(now.getFullYear() + "/" + (now.getMonth() + 1) + "/" + now.getDate())
+					.getTime() - inputDate.getTime() > 0) {
+					time = obj.datetime.substring(5, 10);
+				} else {
+					time = obj.datetime.substring(10, 19);
+				}
+				if (time.indexOf("NaN") >= 0) {
+					time = "";
+				}
+				str += '<li class="rc-item" conver="' + obj.id + '" kind="' + (obj.kind ==
+						"group" ? obj.groupKind : obj.kind) + '" id="recent-contact-' + obj.id +
+					'"><div class="l"><img src="./img/img-avatar.png" alt=""/>' +
+					'<span class="i ui-hide"></span></div><div class="m"><div class="nickname"><span>' +
+					obj.id +
+					'</span><i class="offline-text"></i><span class=""></span></div><div class="rc-msg wto"></div></div>' +
+					'<div class="r">' + time + '</div></li>';
+			}
+		}
 		$("#jd-recent-contacts").find(".rc-wrap").html(str);
-        if(!arr) {
-            require(["poll"], function(pollReq) {
-                pollReq.poll();
-            });
-            return;
-        }
-        var util = require("util");
+		if (!arr) {
+			require(["poll"], function(pollReq) {
+
+			});
+			return;
+		}
+		var util = require("util");
 		for (var i in arr) {
 			var user = arr[i];
 			if (user.kind == "customer") {
 				// 用户状态
 				var uid = user.id;
 				get_contact_status(user.id, function(data) {
-							var dom = util.recentContactDom(data.from);
-							dom.find(".nickname span").eq(1).addClass(get_status_class(data.body.presence));
-							var img = dom.find(".l img").attr("status", data.body.presence);
-							if (data.body.presence == "off") {
-								$.grayscale(img);
-								dom.find(".offline-text").html(get_offline_str(data.body.datetime))
-							}
-							if (data.body.presence == "away") {
-								dom.find(".offline-text").html(get_away_str(data.body.datetime))
-							}
-						}, function(data) {
+						var dom = util.recentContactDom(data.from);
+						dom.find(".nickname span").eq(1).addClass(get_status_class(data.body.presence));
+						var img = dom.find(".l img").attr("status", data.body.presence);
+						if (data.body.presence == "off") {
+							$.grayscale(img);
+							dom.find(".offline-text").html(get_offline_str(data.body.datetime))
+						}
+						if (data.body.presence == "away") {
+							dom.find(".offline-text").html(get_away_str(data.body.datetime))
+						}
+					}, function(data) {
 
-						})
-				// 用户信息
+					})
+					// 用户信息
 				get_user_info(user.id, function(data) {
-							var userinfo = data.body;
-							if (!userinfo || !userinfo.uid)
-								return;
-							var dom = util.recentContactDom(userinfo.uid);
-							dom.find(".nickname span:eq(0)").attr("title", userinfo.realname).text(userinfo.realname);
-							if (userinfo.avatar) {// 如果有头像
-								dom.find(".l img").attr("src", userinfo.avatar).on("error", function(){
-									$(this).attr("src", "./img/default-avatar.png");
-								});
-							}
-							DDstorage.set(userinfo.uid, userinfo);
+					var userinfo = data.body;
+					if (!userinfo || !userinfo.uid)
+						return;
+					var dom = util.recentContactDom(userinfo.uid);
+					dom.find(".nickname span:eq(0)").attr("title", userinfo.realname).text(
+						userinfo.realname);
+					if (userinfo.avatar) { // 如果有头像
+						dom.find(".l img").attr("src", userinfo.avatar).on("error", function() {
+							$(this).attr("src", "./img/default-avatar.png");
 						});
-			} else if (user.kind == "group") {
-				var group = DDstorage.get(user.id + "info");
-				if (group) {
-					var dom = util.recentContactDom(user.id);
-                    var gname = util.filterMsg(group.name);
-					dom.find(".nickname").attr("title", gname).text(group.name);
-					dom.find(".l img").attr(
-							"src",
-							(user.groupKind == "discussion_group"
-									? "./img/team-avatar.png"
-									: "./img/mainchat-avatar.png"));
-				}
+					}
+					DDstorage.set(userinfo.uid, userinfo);
+				});
 			}
-			var unreadmsg = DDstorage.get("chat_unreadmsg_" + cookie("uid") + "_" + user.id);
+			var unreadmsg = DDstorage.get("chat_unreadmsg_" + cookie("uid") + "_" +
+				user.id);
 			if (unreadmsg != null) {
 				var dom = util.recentContactDom(user.id);
 				dom.find(".l").find(".i").text(unreadmsg.length).removeClass("ui-hide");
 			}
 		}
 		require(["poll"], function(pollReq) {
-					pollReq.poll();
+
 		});
 	}, function(data) {
 		$(".loading").removeClass("show");
 	});
 }
-*/
 
 //好友列表
 var get_contact_list_re = function() {
@@ -457,11 +432,12 @@ var preGetRecentContactSuccCallback = function(arr) {
 	var list = DDstorage.get("system_user_list");
 	if (!((arr && arr.length > 0) || (list && list.length > 0))) {
 		require(["poll"], function(pollReq) {
-			pollReq.poll();
+
 		});
 		$(".loading").removeClass("show");
 		return;
 	}
+
 	arr.sort(function(a, b) {
 		var inputDatea = new Date(a.datetime.replace(/-/g, "/"));
 		var inputDateb = new Date(b.datetime.replace(/-/g, "/"));
@@ -542,7 +518,7 @@ require(['widget/Tab'], function(Tab) {
 					return;
 				}
 				get_recent_contact(function(data) {
-					var arr = data.body.contacts;
+					var arr = data.Contacts;
 					preGetRecentContactSuccCallback(arr);
 				});
 				//get_group_re();
@@ -554,8 +530,9 @@ require(['widget/Tab'], function(Tab) {
 				clearInterval(that.timer);
 				that.timer = setInterval(function() {
 					time += 200;
-					if (DDstorage.get("groupdidload")) {
-						// 最近联系人列表
+
+					// 最近联系人列表
+					if (!that.loadRecent) {
 						get_recent_contact_re();
 						clearTimeout(that.timer);
 						that.loadRecent = true;

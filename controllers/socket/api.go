@@ -170,7 +170,7 @@ func (s *Server) getContactStatus(aid string, uid int64) {
 
 // getRecentContact 查询最近联系人列表
 func (s *Server) getRecentContact(aid string, uid int64) {
-
+	s.Response("{\"Contacts\": []}")
 }
 
 // batchContactStatus 查询联系人状态

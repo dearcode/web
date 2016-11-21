@@ -44,12 +44,8 @@ define("chat_window", ["util"], function(util) {
 			this.uid = util.cookie('uid');
 			this.dom = $(".panel-view");
 
-			if (util.isNumber(conver)) {
-				this.checkSingleData();
-			} else {
-				this.checkGroupData();
-			}
 
+			this.checkSingleData();
 
 			// 恢复切换窗口之前的输入数据
 			for (var i = 0; i < textInVal.length; i++) {
@@ -238,143 +234,51 @@ define("chat_window", ["util"], function(util) {
 			var poll = require(["poll"]);
 			//对未读消息按mid小到大排序
 			var mids = [];
-			var unreadmsg = {};
 			for (var k = 0; k < unreadmsgs.length; k++) {
-				if (unreadmsgs[k].body && unreadmsgs[k].body.mid) {
-					var mid = unreadmsgs[k].body.mid;
+				if (unreadmsgs[k].Body && unreadmsgs[k].ID) {
+					var mid = k;
 					mids.push(mid);
-					unreadmsg[mid] = unreadmsgs[k];
 				}
 			}
 			mids.sort();
-			//展现消息
-			if (util.isNumber(msgWindow.conver)) {
-				//群
-				for (var m = 0; m < mids.length; m++) {
-					var j = mids[m];
-					$text1s = this.buildMsgHtml(unreadmsg[j], true);
-					var msg = "",
-						kind = "chat";
-					var user = DDstorage.get(unreadmsg[j].from || unreadmsg[j].body.from);
-					if (unreadmsg[j].body.mode == 1001) {
-						msg = msgWindow.buildCardMsg(unreadmsg[j]);
-					} else if (unreadmsg[j].body.content) {
-						msg = util.filterMsg(unreadmsg[j].body.content, true, true).replace(
-							/\n/g, "<br />");
-					}
-					poll.readMsg(msgWindow.conver, kind, this.kind, unreadmsg[j].body.mid);
-					if (msg) {
-						$text1s.find(".msg-cont").html(msg).addClass("mode" + unreadmsg[j].body
-							.mode);
-					}
 
-					if (user) {
-						$text1s.find(".msg-avatar").find("p").html(user.realname);
-						$text1s.find(".msg-avatar").find("img").attr("src", user.avatar).attr(
-							"data-uid", user.uid);
-						$text1s.attr("time", unreadmsg[j].body.datetime);
-						$text1s.attr("mid", unreadmsg[j].body.mid);
-						$text1s.appendTo(".msg-wrap");
+			for (var m = 0; m < mids.length; m++) {
+				var j = mids[m];
+				var $text1s;
+				var msg = unreadmsgs[j];
+				var user = DDstorage.get(msg.From) || {
+					"uid": msg.From
+				};
+				$text1s = this.buildMsgHtml(msg, true);
 
-					} else {
-						var show = false;
-						var user = DDstorage.get(unreadmsg[j].from);
-						for (var i = 0; !user && userinfo && userinfo.length && i < userinfo.length; i++) {
-							try {
-								user = eval("[" + userinfo[i] + "]")[0].body;
-								if (user && user.uid && unreadmsg[j].from == user.uid) {
-									break;
-								}
-							} catch (e) {
+				var body = "",
+					kind = "chat";
 
-							}
-						}
-						if (user) {
-							$text1s.find(".msg-avatar").find("p").html(user.realname);
-							if (user.avatar) {
-								$text1s.find(".msg-avatar").find("img").attr("src", user.avatar);
-							}
-							$text1s.find(".msg-avatar").find("img").attr("data-uid", user.uid)
-							$text1s.attr("time", unreadmsg[j].body.datetime);
-							$text1s.attr("mid", unreadmsg[j].body.mid);
-							$text1s.appendTo(".msg-wrap");
-							show = true;
-						}
-						if (!show) {
-							$text1s.find(".msg-avatar").find("img").attr("data-uid", unreadmsg[j]
-								.from).end().find("p").html(unreadmsg[j].from);
-							$text1s.attr("time", unreadmsg[j].body.datetime);
-							$text1s.attr("mid", unreadmsg[j].body.mid);
-							$text1s.appendTo(".msg-wrap");
-						}
-
-					}
+				if (msg.Body) {
+					body = util.filterMsg(msg.Body, true, true).replace(
+						/\n/g, "<br />");
 				}
-			} else {
-				//非群
-				for (var m = 0; m < mids.length; m++) {
-					var j = mids[m];
-					var $text1s;
-					var user = DDstorage.get(unreadmsg[j].from) || {
-						"uid": unreadmsg[j].from
-					};
-					$text1s = this.buildMsgHtml(unreadmsg[j], true);
 
-					var msg = "",
-						kind = "chat";
-					if (unreadmsg[j].body.mode == 1001) {
-						msg = msgWindow.buildCardMsg(unreadmsg[j], $text1s, userinfo);
-					} else if (unreadmsg[j].body.content) {
-						msg = util.filterMsg(unreadmsg[j].body.content, true, true).replace(
-							/\n/g, "<br />");
-					}
-					if (unreadmsg[j].type && unreadmsg[j].type == "message_notice") {
-						kind = "notice";
-						poll.readMsg(unreadmsg[j].from, kind, "", unreadmsg[j].body.mid);
-					} else {
-						poll.readMsg(msgWindow.conver, kind, "", unreadmsg[j].body.mid);
-					}
+				if (body) {
+					$text1s.find(".msg-cont").html(body).addClass("mode" + 1);
+				}
 
-					if (msg == "#A_振动") {
-						if (user.uid == util.cookie("uid")) {
-							msg = "您发送了一个震屏消息";
-						} else {
-							msg = (user.realname || user.uid) + "向您发送了一个震屏消息";
-						}
-
-					}
-					if (unreadmsg[j].body.url && unreadmsg[j].type == "message_notice") {
-						msg += "&nbsp;&nbsp;&gt;&gt;<a href='" + unreadmsg[j].body.url +
-							"' target='_blank'>点击这里查看详情</a>"
-					}
-					if (unreadmsg[j].body.pic && unreadmsg[j].type == "message_notice") {
-						msg += "<div><a rel='gallery' href='" + unreadmsg[j].body.pic +
-							"'><img src='" + unreadmsg[j].body.pic +
-							"' style='max-width: 320px;' class='message-img'></a></div>"
-					}
-					if (msg) {
-						$text1s.find(".msg-cont").html(msg).addClass("mode" + unreadmsg[j].body
-							.mode);
-					}
-					$text1s.find(".msg-avatar").find("p").html(user.realname);
-					if (user.avatar) {
-						$text1s.find(".msg-avatar").find("img").attr("src", user.avatar);
-					}
-					$text1s.find(".msg-avatar").find("img").attr("data-uid", user.uid);
-					$text1s.attr("time", unreadmsg[j].body.datetime);
-					$text1s.attr("mid", unreadmsg[j].body.mid);
-					$text1s.appendTo(".msg-wrap");
-					$text1s.find(".msg-avatar").find("img").attr("data-uid", userinfo.uid)
-						.unbind("click").bind("click", function() {
-							var _this = this;
-							require(["visiting_card"], function(card) {
-								card.show($(_this).attr("data-uid"));
-							});
+				$text1s.find(".msg-avatar").find("p").html(user.NickName || user.Name);
+				if (user.Avatar) {
+					$text1s.find(".msg-avatar").find("img").attr("src", user.Avatar);
+				}
+				$text1s.find(".msg-avatar").find("img").attr("data-uid", user.ID);
+				$text1s.attr("time", msg.CreateTime);
+				$text1s.attr("mid", msg.ID);
+				$text1s.appendTo(".msg-wrap");
+				$text1s.find(".msg-avatar").find("img").attr("data-uid", userinfo.ID)
+					.unbind("click").bind("click", function() {
+						var _this = this;
+						require(["visiting_card"], function(card) {
+							card.show($(_this).attr("data-uid"));
 						});
-				}
+					});
 			}
-			poll.bindMsgEvent();
-
 		},
 		getHistoryMsg: function(type) {
 			var conver = $(".panel-view").attr("conver");
