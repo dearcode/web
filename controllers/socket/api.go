@@ -7,6 +7,7 @@ import (
 	"strconv"
 
 	"github.com/davygeek/log"
+	candymeta "github.com/dearcode/candy/meta"
 	"github.com/dearcode/web/meta"
 	"github.com/dearcode/web/util"
 )
@@ -72,6 +73,8 @@ func (s *Server) Post() {
 		s.offlineMessageGet(aid, uid)
 	case "searchContactList":
 		s.searchContactList(aid, uid)
+	case "addFriend":
+		s.addFriend(aid, uid)
 	case "logout":
 		s.logout(aid, uid)
 	default:
@@ -427,4 +430,36 @@ func (s *Server) searchContactList(aid string, uid int64) {
 	}
 
 	s.Response(string(data))
+}
+
+func (s *Server) addFriend(aid string, uid int64) {
+	from, err := s.GetInt64("from")
+	if err != nil {
+		log.Errorf("err:%v", err)
+		s.Response(util.Error(util.ErrFrom, err.Error()))
+		return
+	}
+
+	to, err := s.GetInt64("to")
+	if err != nil {
+		log.Errorf("err:%v", err)
+		s.Response(util.Error(util.ErrTo, err.Error()))
+		return
+	}
+
+	c, err := getClient(from)
+	if err != nil {
+		log.Errorf("%v", err)
+		s.Response(util.Error(util.ErrSessionTimeout, "session timeout"))
+		return
+	}
+
+	err = c.Friend(to, int32(candymeta.Relation_Add), "hello")
+	if err != nil {
+		log.Errorf("%v", err)
+		s.Response(util.Error(util.ErrAddFriend, err.Error()))
+		return
+	}
+
+	s.Response(fmt.Sprintf("{\"Code\": 0}"))
 }

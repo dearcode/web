@@ -42,4 +42,6 @@ const (
 	ErrLogout = 5016
 	// ErrFindUser
 	ErrFindUser = 5017
+	// ErrAddFriend
+	ErrAddFriend = 5018
 )

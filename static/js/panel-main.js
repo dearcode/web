@@ -211,41 +211,37 @@
 		var util = require("util");
 		var datadom = $(this).parent().parent();
 		var kind = datadom.parent("li").attr("kind");
+		var fid = datadom.attr("uid");
 		if ($(this).attr("rel") == "add") {
-			if (kind == "discussion_group") {
-				addGroup(datadom.attr("gid"), kind, datadom.attr("code"), datadom.attr(
-					"name"));
-				return;
-			}
-			if (util.contactDom(datadom.attr("uid")).length == 1) {
+			if (util.contactDom(fid).length == 1) {
 				util.alert("提示", datadom.attr("realname") + "已经在您的联系人列表中");
 				return;
 			}
-			if (datadom.attr("uid") == cookie("uid")) {
+
+			if (fid == cookie("uid")) {
 				util.alert("提示", "不能添加自己到联系人列表");
 				return;
 			}
 			var addContact = $("#addContact").clone();
 			addContact.find(".pop-title").text("添加联系人");
-			addContact.find(".btn-wrap").attr("data", datadom.attr("uid"));
+			addContact.find(".btn-wrap").attr("data", fid);
 			var str = "",
 				mods = $("#jd-contact").find(".mod");
 			if (mods.length == 0) {
 				get_contact_list(function(data) {
-					var groups = data.body.labels;
-					if (!groups || groups.length == 0) {
-						util.alert("提示", "你还没有分组，无法添加联系人")
-						return;
+					var users = data.Users;
+					for (var i in users) {
+						var u = users[i];
+						if (fid == u.ID) {
+							util.alert("提示", datadom.attr("realname") + "已经在您的联系人列表中");
+							return;
+						}
 					}
-					var gstr = "",
-						users = data.body.items;
-					for (var i in groups) {
-						var group = groups[i];
-						var gname = util.filterMsg(group);
-						str += '<li rel="g" class="exist-item ' + (i == 0 ? "selected" : "") +
-							'" labelId="' + group.id + '"><span class="i"></span>' + gname +
-							'</li>';
-					}
+
+					var gname = "常用联系人";
+					str += '<li rel="g" class="exist-item ' + "selected" +
+						'" labelId="' + 0 + '"><span class="i"></span>' + gname + '</li>';
+
 					addContact.find(".exist-wrap").html(str);
 					jQuery.facebox(addContact.show());
 					addContact.find("li,a").on("click", function() {

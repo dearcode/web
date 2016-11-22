@@ -159,16 +159,17 @@ var search_contact_list = function(searchText, suc, error) {
 }
 
 /**
- * 添加好友 说明： labelId传，加入默认的好友分组， friendUid 为添加人的pin
+ * 添加好友 说明： 默认的好友分组， friendUid 为添加人的uid
  */
-var add_friend = function(friendUid, labelId, suc, error) {
+var add_friend = function(friendUid, suc, error) {
 	var defaults = {
 		"aid": cookie("aid"),
+		"uid": cookie("uid"),
 		"from": cookie("uid"),
 		"to": friendUid,
-		"ptype": "presence_subscribe"
+		"ptype": "addFriend"
 	};
-	data_ajax(suc, error, defaults);
+	data_ajax(suc, error, defaults, 1);
 };
 
 /**
