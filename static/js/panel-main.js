@@ -103,41 +103,7 @@
 		}
 		is_selected && $("#team-cancel-btn").click();
 		var me = $(this);
-		if ($(this).attr("kind") == "discussion_group") {
-			//判断是不是群成员
-			var param = {
-				aid: cookie("aid"),
-				from: cookie("uid"),
-				type: "iq_group_get",
-				version: "1.0",
-				body: {
-					gid: me.attr("conver")
-				}
-			};
-			$.ajax({
-				url: "/api.action",
-				type: "GET",
-				dataType: "json",
-				data: {
-					webJson: JSON.stringify(param)
-				},
-				success: function(json) {
-					// 不是群成员
-					if (json && json.body && json.body.code == 126) {
-						require(["util"], function(util) {
-							util.confirm("提示", "对不起，您还不是该群成员，现在加入该群？", function() {
-								me.find("span[rel='add']").click();
-							});
-						});
-					} else {
-						require(["chat_window"], function(chatwin) {
-							chatwin.create(me.attr('conver'), me.attr('kind'));
-						});
-					}
-				}
-			});
-			return;
-		}
+
 		var offset = me.offset();
 		offset.left = offset.left + me.width() + 38;
 		offset.top = offset.top + 23;
@@ -185,26 +151,11 @@
 			search_request.abort();
 		}
 
-		var defaults = {
-			"aid": cookie("aid"),
-			"uid": cookie("uid"),
-			"ptype": "iep_erp_search",
-			"pname": searchText,
-			"url": "/api"
-		};
-		search_request = $.ajax({
-			type: "post",
-			dataType: "json",
-			contentType: 'charset=utf-8',
-			url: '/api.action?' + $.param(defaults),
-			success: doSearchResult
+		search_contact_list(searchText, doSearchResult, function(data) {
+			//console.log(data);
 		});
-
-		if ($("#jd-contact").find(".mod").length == 0) {
-			// 当前联系人为空，搜索后请求联系人列表
-			get_contact_list_re();
-		}
 	}
+
 
 	function doSearchResult(data) {
 		var util = require("util");
@@ -212,82 +163,45 @@
 		searchele.removeClass("ui-hide");
 		var rel = $("#j-tabPanelMainHd").find("li.selected").attr("rel");
 		$("#jd-" + rel).addClass("ui-hide");
-		var arr = [],
-			groups = [];
-		if (data.body && data.body.users) {
-			arr = data.body.users;
+		var arr = []
+		if (data && data.Count > 0) {
+			arr = data.Users;
 		}
-		if (data.body && data.body.groups) {
-			groups = data.body.groups;
-		}
-		if (arr.length == 0 && groups.length == 0) {
-			searchele.html(
-				'<div class="sret-null"><span>搜索结果：</span><p>抱歉，没有找到相关搜索结果</p></div>');
-			return;
-		} else if (arr.length == 50) {
 
+		if (arr.length == 0) {
+			searchele.html('<div class="sret-null"><span>搜索结果：</span><p>抱歉，没有找到相关搜索结果</p></div>');
+			return;
 		}
 
 		var str = "";
 		for (var i in arr) {
 			var obj = arr[i];
 			var status = "";
-			if (obj.status.presence == "off") {
-				status = get_offline_str(obj.status.datetime);
-			}
-			str += ' <ul class="rc-wrap"><li class="rc-item" id="search-re-' + obj.uid +
-				'" conver="' + obj.uid + '" kind="customer"><div class="l">' +
-				'<img src="../img/img-avatar.png" alt=""/>' + '</div><div class="m">' +
-				'<div class="nickname"><span title="' + obj.realname + '">' + obj.realname +
+			var realname = obj.NickName || obj.Name;
+			var position = "web";
+
+			str += ' <ul class="rc-wrap"><li class="rc-item" id="search-re-' + obj.ID +
+				'" conver="' + obj.ID + '" kind="customer"><div class="l">' +
+				'<img src="/static/img/img-avatar.png" alt=""/>' + '</div><div class="m">' +
+				'<div class="nickname"><span title="' + realname + '">' + realname +
 				'</span><i class="offline-text">' + status +
-				'</i><span class=""></span></div><div class="rc-msg wto"><span>' + (obj.position ||
-					"") + " " + (obj.orgFullName || "") + '</span></div>' +
-				'</div><div class="r" pos="' + (obj.position || "") + '" email="' + (obj.email ||
-					"") + '" phone="' + (obj.phone || "") + '" uid="' + obj.uid +
-				'" realname="' + obj.realname + '" tel="' + (obj.tel || "") +
-				'" orgFullName="' + (obj.orgFullName || "") +
+				'</i><span class=""></span></div><div class="rc-msg wto"><span></span></div>' +
+				'</div><div class="r" uid="' + obj.ID + '" realname="' + realname +
 				'"><div><span class="i opr" rel="view" title="名片"></span></div>' +
 				'<div><span class="i opr" rel="add" title="添加联系人"></span></div></div></li></ul>';
 		}
 
-		for (var i = 0; i < groups.length; i++) {
-			var gname = util.filterMsg(groups[i].name);
-			str += '<ul class="rc-wrap">' + '<li class="rc-item" id="search-re-' +
-				groups[i].gid + '" conver="' + groups[i].gid + '" kind="' + groups[i].kind +
-				'"> ' + '  <div class="l">' +
-				'      <img src="/static/img/default-avatar.png" >' + '  </div> ' +
-				'      <div class="m">' + '          <div class="nickname">' +
-				'              <span title="' + gname + '">' + gname + '</span> ' +
-				'          </div> '
-
-			+ '      </div>';
-			var ingroup = $("#jd-group-items").find(".g-item[conver='" + groups[i].gid +
-				"']").length > 0;
-			if (ingroup) {
-				str += '<div class="r" style="width:0px;" gid="' + groups[i].gid +
-					'" code="' + (groups[i].sCode || "") + '" name="' + gname +
-					'" style="display:none;"></div>'
-			} else {
-				str += '<div class="r" style="width:42px;" gid="' + groups[i].gid +
-					'" code="' + (groups[i].sCode || "") + '" name="' + gname +
-					'" ><div style="display:none;"><span class="i opr" rel="view" title="名片"></span></div><div><span class="i opr" rel="add"></span></div>'
-			}
-			str += '  </li></ul>'
-		}
 		searchele.html(str);
 
 		// 用户状态
 		for (var i in arr) {
 			var user = arr[i];
-			var present = user.status.presence;
-			var dom = util.searchResDom(user.uid);
+			var present = "chat";
+			var dom = util.searchResDom(user.ID);
 			dom.find(".nickname span:eq(1)").addClass(get_status_class(present));
 			var img = dom.find(".l img").attr("status", present);
-			if (user.avatar) { // 如果有头像
-				img.attr("src", user.avatar);
-			}
-			if (present == "off") {
-				$.grayscale(img);
+			if (user.Avatar) { // 如果有头像
+				img.attr("src", user.Avatar);
 			}
 		}
 	} // end doSearchResult

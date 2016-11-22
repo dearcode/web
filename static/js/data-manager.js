@@ -147,6 +147,17 @@ var batch_contact_status = function(pnames, suc, error) {
 	data_ajax(suc, error, defaults, 1);
 }
 
+/* 查找用户 */
+var search_contact_list = function(searchText, suc, error) {
+	var defaults = {
+		"aid": cookie("aid"),
+		"uid": cookie("uid"),
+		"ptype": "searchContactList",
+		"search": searchText
+	};
+	data_ajax(suc, error, defaults, 1);
+}
+
 /**
  * 添加好友 说明： labelId传，加入默认的好友分组， friendUid 为添加人的pin
  */

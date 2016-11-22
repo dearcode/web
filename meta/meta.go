@@ -57,6 +57,26 @@ func ParseUserInfo(data []byte) (*UserInfo, error) {
 	}, nil
 }
 
+// ParseUserList - parse meta.UserList json data to UserList object
+func ParseUserList(data []byte) (*UserList, error) {
+	l := &meta.UserList{}
+	if err := json.Unmarshal(data, l); err != nil {
+		return nil, err
+	}
+
+	list := &UserList{Users: make([]*UserInfo, 0), Count: len(l.Users)}
+	for _, info := range l.Users {
+		list.Users = append(list.Users, &UserInfo{
+			ID:        fmt.Sprintf("%v", info.ID),
+			Name:      info.Name,
+			Avatar:    info.Avatar,
+			Signature: info.Signature,
+		})
+	}
+
+	return list, nil
+}
+
 // ParseFriendList - parse friend string id list to FriendList object
 func ParseFriendList(data []byte) (*FriendList, error) {
 	l := &meta.FriendList{}

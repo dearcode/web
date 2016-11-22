@@ -40,4 +40,6 @@ const (
 	ErrDecodeString = 5015
 	// ErrLogout
 	ErrLogout = 5016
+	// ErrFindUser
+	ErrFindUser = 5017
 )

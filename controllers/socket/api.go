@@ -70,6 +70,8 @@ func (s *Server) Post() {
 		s.messageChat(aid, uid)
 	case "offLineMessageGet":
 		s.offlineMessageGet(aid, uid)
+	case "searchContactList":
+		s.searchContactList(aid, uid)
 	case "logout":
 		s.logout(aid, uid)
 	default:
@@ -391,4 +393,38 @@ func (s *Server) logout(aid string, uid int64) {
 	}
 
 	s.Response(fmt.Sprintf("{\"Code\": 0}"))
+}
+
+func (s *Server) searchContactList(aid string, uid int64) {
+	search := s.GetString("search")
+
+	c, err := getClient(uid)
+	if err != nil {
+		log.Errorf("%v", err)
+		s.Response(util.Error(util.ErrSessionTimeout, "session timeout"))
+		return
+	}
+
+	d, err := c.FindUser(search)
+	if err != nil {
+		log.Errorf("%v", err)
+		s.Response(util.Error(util.ErrFindUser, err.Error()))
+		return
+	}
+
+	l, err := meta.ParseUserList([]byte(d))
+	if err != nil {
+		log.Errorf("%v", err)
+		s.Response(util.Error(util.ErrParseData, err.Error()))
+		return
+	}
+
+	data, err := json.Marshal(l)
+	if err != nil {
+		log.Errorf("%v", err)
+		s.Response(util.Error(util.ErrParseData, err.Error()))
+		return
+	}
+
+	s.Response(string(data))
 }
